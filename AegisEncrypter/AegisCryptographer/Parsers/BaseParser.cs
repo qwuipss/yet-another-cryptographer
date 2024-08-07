@@ -1,5 +1,6 @@
 using AegisCryptographer.Collections;
 using AegisCryptographer.Commands;
+using AegisCryptographer.Cryptography.Algorithms;
 using AegisCryptographer.Extensions;
 using AegisCryptographer.IO;
 
@@ -13,11 +14,16 @@ public abstract class BaseParser(CommandArgumentsCollection arguments, IReader r
 
     public abstract ICommand ParseCommand();
 
+    protected ICryptoAlgorithm ResolveCryptoAlgorithm(string secret)
+    {
+        return new AesGcmAlgorithm(secret);
+    }
+
     protected string RequireSecret()
     {
         return RequireSecret(Writer.WriteEnterSecret);
     }
-    
+
     protected string RequireSecretWithEnsure()
     {
         var secret = RequireSecret();

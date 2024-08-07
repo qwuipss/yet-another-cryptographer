@@ -1,8 +1,7 @@
-using System.Text;
-using System.Text.RegularExpressions;
 using AegisCryptographer.Collections;
 using AegisCryptographer.Commands;
 using AegisCryptographer.Commands.Encrypt;
+using AegisCryptographer.Cryptography;
 using AegisCryptographer.Exceptions;
 using AegisCryptographer.Exceptions.Parsers;
 using AegisCryptographer.Helpers;
@@ -14,32 +13,30 @@ public class EncryptParser(CommandArgumentsCollection arguments, IReader reader,
     : BaseParser(arguments, reader, writer)
 {
     private const string CommandName = "encrypt";
-    
-    private const string ParameterStringArgumentName = "parameter string";
-    
+
+    private const string ArgumentStringName = "argument string";
+
     public override ICommand ParseCommand()
     {
         if (Arguments[0] is "string" or "str")
         {
             string? str;
-            
+
             try
             {
-                str = Arguments[1..].ExtractParameterString();
+                str = Arguments[1..].ExtractArgumentString();
             }
             catch (AmbiguousArgumentException)
             {
-                throw new CommandInvalidArgumentException(ParameterStringArgumentName, CommandName);
+                throw new CommandInvalidArgumentException(ArgumentStringName, CommandName);
             }
 
-            if (string.IsNullOrEmpty(str))
-            {
-                throw new CommandInvalidArgumentException(ParameterStringArgumentName, CommandName);
-            }
-            
+            if (string.IsNullOrEmpty(str)) throw new CommandInvalidArgumentException(ArgumentStringName, CommandName);
+
             var secret = RequireSecretWithEnsure();
+            var algorithm = ResolveCryptoAlgorithm(secret);
 
-            return new EncryptStringCommand(str, secret);
+            return new EncryptStringCommand(str, new CryptoStream(algorithm));
         }
 
         throw new CommandInvalidArgumentException(Arguments[0], CommandName);

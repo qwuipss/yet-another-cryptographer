@@ -10,10 +10,7 @@ public class LoopRunner(IReader reader, IWriter writer) : BaseRunner(reader, wri
         {
             var input = Reader.ReadLine();
 
-            if (input is "q" or "quit" or "ex" or "exit")
-            {
-                break;
-            }
+            if (input is "q" or "quit" or "ex" or "exit") break;
 
             RunInput(input);
         }

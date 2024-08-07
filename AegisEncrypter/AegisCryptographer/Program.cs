@@ -1,5 +1,4 @@
-﻿using System.Text;
-using AegisCryptographer.IO;
+﻿using AegisCryptographer.IO;
 using AegisCryptographer.Runners;
 
 namespace AegisCryptographer;
@@ -11,10 +10,7 @@ public class Program
         var writer = new Writer();
         var reader = new Reader(writer);
 
-        if (args.Length is 0)
-        {
-            new LoopRunner(reader, writer).Run();
-        }
+        if (args.Length is 0) new LoopRunner(reader, writer).Run();
 
         // todo cli runner
         throw new NotImplementedException();

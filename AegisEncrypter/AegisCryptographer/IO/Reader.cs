@@ -6,14 +6,14 @@ public class Reader(IWriter writer) : IReader
 {
     static Reader()
     {
-        Console.InputEncoding = Config.Encoding;
+        Console.InputEncoding = Settings.Encoding;
     }
 
     public string? ReadLine()
     {
         writer.Write("aegis> ");
 
-        return Console.ReadLine();
+        return Console.ReadLine()?.Trim();
     }
 
     public string ReadSecret()
@@ -41,19 +41,17 @@ public class Reader(IWriter writer) : IReader
                 continue;
             }
 
-            if (!char.IsLetterOrDigit(keyInfo.KeyChar))
-            {
-                continue;
-            }
+            if (!char.IsLetterOrDigit(keyInfo.KeyChar)) continue;
 
+#if !DEBUG // disable password masking in debug mode 
             Console.CursorLeft -= 1;
             writer.Write("*");
-
+#endif
             secretBuilder.Append(keyInfo.KeyChar);
         }
 
         writer.WriteLine();
 
-        return secretBuilder.ToString();
+        return secretBuilder.ToString().Trim();
     }
 }

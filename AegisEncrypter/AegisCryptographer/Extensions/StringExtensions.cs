@@ -1,4 +1,4 @@
-using System.Text;
+using AegisCryptographer.Exceptions;
 
 namespace AegisCryptographer.Extensions;
 
@@ -9,48 +9,18 @@ public static class StringExtensions
         return string.IsNullOrEmpty(str) || string.IsNullOrWhiteSpace(str);
     }
 
-    public static ReadOnlySpan<byte> ToByteReadOnlySpan(this string str)
+    public static ReadOnlySpan<byte> ToCipherKeyWithAutoPadding(this string str, int[]? paddings = null)
     {
-        var bytes = Config.Encoding.GetBytes(str);
+        paddings ??= [128 / 8, 192 / 8, 256 / 8];
+        var size = Settings.Encoding.GetByteCount(str);
+        var paddedSize = paddings.FirstOrDefault(x => x >= size);
 
-        return new ReadOnlySpan<byte>(bytes);
-    }
+        if (paddedSize is 0) throw new SecretTooLongException(size, paddings.Max());
 
-    public static ReadOnlySpan<byte> ToCipherKeyWithAutoPadding(this string str)
-    {
-        var length = str.Length;
-        var delta = 128 / 8 - length;
+        var array = new byte[paddedSize];
+        var bytes = Settings.Encoding.GetBytes(str);
 
-        byte[] array;
-//todo
-        if (delta < 0)
-        {
-            delta = 192 / 8 - length;
-
-            if (delta < 0)
-            {
-                delta = 256 / 8 - length;
-
-                if (delta < 0)
-                {
-                    throw new();
-                }
-
-                array = new byte[256 / 8];
-            }
-            else
-            {
-                array = new byte[192 / 8];
-            }
-        }
-        else
-        {
-            array = new byte[128 / 8];
-        }
-
-        var bytes = Config.Encoding.GetBytes(str);
-
-        Array.Copy(bytes, array, bytes.Length);
+        Buffer.BlockCopy(bytes, 0, array, 0, bytes.Length);
 
         return new ReadOnlySpan<byte>(array);
     }

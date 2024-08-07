@@ -4,9 +4,9 @@ public class Writer : IWriter
 {
     static Writer()
     {
-        Console.OutputEncoding = Config.Encoding;
+        Console.OutputEncoding = Settings.Encoding;
     }
-    
+
     public void WriteLine()
     {
         Console.WriteLine();
