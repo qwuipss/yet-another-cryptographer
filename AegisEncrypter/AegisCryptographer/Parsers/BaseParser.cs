@@ -1,22 +1,44 @@
 using AegisCryptographer.Collections;
 using AegisCryptographer.Commands;
+using AegisCryptographer.Cryptography;
 using AegisCryptographer.Cryptography.Algorithms;
+using AegisCryptographer.Exceptions;
+using AegisCryptographer.Exceptions.Parsers;
 using AegisCryptographer.Extensions;
+using AegisCryptographer.Helpers;
 using AegisCryptographer.IO;
 
 namespace AegisCryptographer.Parsers;
 
-public abstract class BaseParser(CommandArgumentsCollection arguments, IReader reader, IWriter writer) : IParser
+public abstract class BaseParser(ICommandExecutionStringInfo commandExecutionStringInfo, IReader reader, IWriter writer)
+    : IParser
 {
-    protected CommandArgumentsCollection Arguments { get; } = arguments;
+    protected ICommandExecutionStringInfo CommandExecutionStringInfo { get; } = commandExecutionStringInfo;
     private IReader Reader { get; } = reader;
     private IWriter Writer { get; } = writer;
 
     public abstract ICommand ParseCommand();
 
-    protected ICryptoAlgorithm ResolveCryptoAlgorithm(string secret)
+    protected ICommand GetCryptoActionStringCommand(string argumentName, string commandName,
+        Func<string, ICryptoStream, ICommand> cryptoCommandCallback)
     {
-        return new AesGcmAlgorithm(secret);
+        string? str;
+
+        try
+        {
+            str = RegexHelper.ExtractArgumentString(CommandExecutionStringInfo.CommandArgumentsCollection[1..]);
+        }
+        catch (AmbiguousArgumentException)
+        {
+            throw new CommandInvalidArgumentException(argumentName, commandName);
+        }
+
+        if (string.IsNullOrEmpty(str)) throw new CommandInvalidArgumentException(argumentName, commandName);
+
+        var secret = RequireSecretWithEnsure();
+        var algorithm = ResolveCryptoAlgorithm(secret);
+
+        return cryptoCommandCallback(str, new CryptoStream(algorithm));
     }
 
     protected string RequireSecret()
@@ -39,13 +61,18 @@ public abstract class BaseParser(CommandArgumentsCollection arguments, IReader r
         return secret;
     }
 
-    private string RequireSecret(Action writeDelegate)
+    private ICryptoAlgorithm ResolveCryptoAlgorithm(string secret)
+    {
+        return new AesGcmAlgorithm(secret);
+    }
+
+    private string RequireSecret(Action writeCallback)
     {
         string? input;
 
         do
         {
-            writeDelegate();
+            writeCallback();
             input = Reader.ReadSecret();
         } while (StringExtensions.IsNullOrEmptyOrWhitespace(input));
 

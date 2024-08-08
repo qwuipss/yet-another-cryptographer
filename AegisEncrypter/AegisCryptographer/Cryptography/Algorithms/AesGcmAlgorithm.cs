@@ -13,7 +13,7 @@ public class AesGcmAlgorithm(string secret) : ICryptoAlgorithm
 
     public byte[] Encrypt(byte[] data)
     {
-        var nonce = CryptoHelper.GetNonce(NonceSize);
+        var nonce = CryptoHelper.GetRandomNonce(NonceSize);
         var cipher = new byte[data.Length];
         var tag = new byte[TagBytesSize];
 

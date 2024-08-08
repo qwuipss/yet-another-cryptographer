@@ -1,6 +1,6 @@
-using AegisCryptographer.Collections.Exceptions;
 using AegisCryptographer.Commands;
 using AegisCryptographer.Exceptions;
+using AegisCryptographer.Exceptions.Collections;
 using AegisCryptographer.Exceptions.Parsers;
 using AegisCryptographer.Helpers;
 using AegisCryptographer.IO;
@@ -34,10 +34,11 @@ public abstract class BaseRunner(IReader reader, IWriter writer) : IRunner
         }
 
         while (true)
+        {
             try
             {
                 var command = parser.ParseCommand();
-                var executor = new CommandExecutor();
+                var executor = new CommandExecutor(Writer);
 
                 executor.Execute(command);
 
@@ -48,10 +49,16 @@ public abstract class BaseRunner(IReader reader, IWriter writer) : IRunner
                 Writer.WriteException(exc);
             }
             catch (Exception exc) when (exc is CommandInvalidArgumentException or CommandArgumentMissingException
-                                            or SecretTooLongException or FlagDuplicateException)
+                                            or SecretTooLongException or FlagDuplicateException or CommandArgumentStringMissingException)
             {
                 Writer.WriteException(exc);
                 break;
             }
+            catch (InternalException)
+            {
+                //todo
+                throw;
+            }
+        }
     }
 }

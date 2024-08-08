@@ -10,7 +10,6 @@
     <ItemGroup>
         <Folder Include="Extensions\"/>
         <Folder Include="IO\"/>
-        <Folder Include="Parsers\"/>
         <Folder Include="Runners\"/>
     </ItemGroup>
 

@@ -1,9 +1,11 @@
+using AegisCryptographer.IO;
+
 namespace AegisCryptographer.Commands;
 
-public class CommandExecutor : ICommandExecutor
+public class CommandExecutor(IWriter writer) : ICommandExecutor
 {
     public void Execute(ICommand command)
     {
-        command.Execute();
+        command.Execute(writer.WriteLine);
     }
 }

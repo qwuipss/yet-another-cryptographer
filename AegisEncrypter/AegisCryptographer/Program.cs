@@ -3,6 +3,7 @@ using AegisCryptographer.Runners;
 
 namespace AegisCryptographer;
 
+// ReSharper disable once ClassNeverInstantiated.Global
 public class Program
 {
     public static void Main(string[] args)

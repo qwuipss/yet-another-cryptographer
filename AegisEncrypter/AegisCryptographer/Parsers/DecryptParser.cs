@@ -1,18 +1,15 @@
 using AegisCryptographer.Collections;
 using AegisCryptographer.Commands;
-using AegisCryptographer.Commands.Encrypt;
-using AegisCryptographer.Cryptography;
-using AegisCryptographer.Exceptions;
+using AegisCryptographer.Commands.Decrypt;
 using AegisCryptographer.Exceptions.Parsers;
-using AegisCryptographer.Helpers;
 using AegisCryptographer.IO;
 
 namespace AegisCryptographer.Parsers;
 
-public class EncryptParser(ICommandExecutionStringInfo commandExecutionStringInfo, IReader reader, IWriter writer)
+public class DecryptParser(ICommandExecutionStringInfo commandExecutionStringInfo, IReader reader, IWriter writer)
     : BaseParser(commandExecutionStringInfo, reader, writer)
 {
-    private const string CommandName = "encrypt";
+    private const string CommandName = "decrypt";
 
     public override ICommand ParseCommand()
     {
@@ -20,8 +17,8 @@ public class EncryptParser(ICommandExecutionStringInfo commandExecutionStringInf
 
         return commandSubType switch
         {
-            "string" or "str" => GetCryptoActionStringCommand("encrypt string", CommandName,
-                (str, cryptoStream) => new EncryptStringCommand(str, cryptoStream)),
+            "string" or "str" => GetCryptoActionStringCommand("decrypt string", CommandName,
+                (str, cryptoStream) => new DecryptStringCommand(str, cryptoStream)),
             _ => throw new CommandInvalidArgumentException(commandSubType,
                 CommandName)
         };

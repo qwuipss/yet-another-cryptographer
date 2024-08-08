@@ -4,7 +4,7 @@ namespace AegisCryptographer.Helpers;
 
 public static class CryptoHelper
 {
-    public static byte[] GetNonce(int size)
+    public static byte[] GetRandomNonce(int size)
     {
         var nonce = new byte[size];
 

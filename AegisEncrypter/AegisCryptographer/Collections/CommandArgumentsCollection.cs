@@ -1,9 +1,9 @@
 using System.Collections.ObjectModel;
-using AegisCryptographer.Collections.Exceptions;
+using AegisCryptographer.Exceptions.Collections;
 
 namespace AegisCryptographer.Collections;
 
-public class CommandArgumentsCollection(IList<string> list) : ReadOnlyCollection<string>(list)
+public class CommandArgumentsCollection(IList<string> list) : ReadOnlyCollection<string>(list), ICommandArgumentsCollection
 {
     public string this[Range range]
     {

@@ -5,12 +5,12 @@ namespace AegisCryptographer.Commands.Encrypt;
 
 public class EncryptStringCommand(string str, ICryptoStream cryptoStream) : ICommand
 {
-    public void Execute()
+    public CommandExecutionResult Execute(Action<string> executionCallback)
     {
         var encrypted = cryptoStream.Encrypt(str);
 
-        Console.WriteLine($"Encrypted: {encrypted}");
+        executionCallback($"Encrypted string: \"{encrypted}\"");
 
-        new DecryptStringCommand(encrypted, cryptoStream).Execute();
+        return CommandExecutionResult.Success();
     }
 }

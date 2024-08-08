@@ -4,10 +4,12 @@ namespace AegisCryptographer.Commands.Decrypt;
 
 public class DecryptStringCommand(string str, ICryptoStream cryptoStream) : ICommand
 {
-    public void Execute()
+    public CommandExecutionResult Execute(Action<string> executionCallback)
     {
         var decrypted = cryptoStream.Decrypt(str);
 
-        Console.WriteLine($"Decrypted: {decrypted}");
+        executionCallback($"Decrypted string: \"{decrypted}\"");
+
+        return CommandExecutionResult.Success();
     }
 }

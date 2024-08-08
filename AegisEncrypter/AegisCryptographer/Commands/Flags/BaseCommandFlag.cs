@@ -37,7 +37,7 @@ public abstract class BaseCommandFlag : ICommandFlag
 
     public override bool Equals(object? obj)
     {
-        return ReferenceEquals(this, obj);
+        return ReferenceEquals(this, obj) || obj is ICommandFlag && obj.GetHashCode() == GetHashCode();
     }
 
     public static ICommandFlag ResolveCommandFlag(string flagKey, string flagValue)

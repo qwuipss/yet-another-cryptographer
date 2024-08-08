@@ -1,3 +1,5 @@
+using AegisCryptographer.Collections;
+using AegisCryptographer.Commands.Decrypt;
 using AegisCryptographer.Exceptions.Parsers;
 using AegisCryptographer.Extensions;
 using AegisCryptographer.IO;
@@ -10,34 +12,23 @@ public static class ParsersHelper
     public static IParser CreateParser(string? input, IReader reader, IWriter writer)
     {
         if (StringExtensions.IsNullOrEmptyOrWhitespace(input)) throw new InputEmptyException();
+        
+        var (argumentsString, flagsCollection) = RegexHelper.ExtractExecuteStringFlags(input!);
+        var split = argumentsString.Split();
 
-        throw new InputEmptyException();
-
-        // var (command) = A(input!);
-        //
-        // return command switch
-        // {
-        //     "encrypt" or "enc" => new EncryptParser(arguments, reader, writer),
-        //     _ => 
-        // };
-    }
-
-    private static void A(string input)
-    {
-        var split = input.Split();
-
-        var command = split[0] switch
+        if (split.Length is 0)
         {
-            "encrypt" or "enc" => ParserType.Encrypt,
+            throw new CommandArgumentStringMissingException();
+        }
+
+        var commandExecutionStringInfo =
+            new CommandExecutionStringInfo(new CommandArgumentsCollection(split[1..]), flagsCollection);
+        
+        return split[0] switch
+        {
+            "encrypt" or "enc" => new EncryptParser(commandExecutionStringInfo, reader, writer),
+            "decrypt" or "dec" => new DecryptParser(commandExecutionStringInfo, reader, writer),
             _ => throw new ParserResolveException(split[0])
         };
-
-        var executeStringInfo = input[1..];
-        // r.Matches()[0].Gro
-    }
-
-    private enum ParserType
-    {
-        Encrypt
     }
 }

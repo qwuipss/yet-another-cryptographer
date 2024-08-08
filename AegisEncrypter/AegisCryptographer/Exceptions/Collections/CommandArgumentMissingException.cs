@@ -1,3 +1,3 @@
-namespace AegisCryptographer.Collections.Exceptions;
+namespace AegisCryptographer.Exceptions.Collections;
 
 public class CommandArgumentMissingException() : Exception("Command argument missing.");
