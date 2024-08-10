@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using System.Text;
 using AegisCryptographer.Exceptions;
 
 namespace AegisCryptographer.Extensions;
@@ -7,7 +6,7 @@ namespace AegisCryptographer.Extensions;
 public static class StringExtensions
 {
     private static readonly ImmutableArray<int> DefaultCipherKeyPaddings = [128 / 8, 192 / 8, 256 / 8];
-    
+
     public static bool IsNullOrEmptyOrWhitespace(string? str)
     {
         return string.IsNullOrEmpty(str) || string.IsNullOrWhiteSpace(str);

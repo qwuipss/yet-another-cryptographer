@@ -6,7 +6,16 @@ namespace AegisCryptographer.Commands.Flags;
 public abstract class BaseCommandFlag : ICommandFlag
 {
     private readonly string _value = null!;
-    
+
+    protected BaseCommandFlag(string key, string value)
+    {
+        Key = key;
+        Value = value;
+    }
+
+    protected virtual Func<string, bool> ValueValidationCallback =>
+        value => RegexHelper.GetCommandFlagDefaultValueValidationRegex().IsMatch(value);
+
     public string Key { get; }
 
     public string Value
@@ -19,15 +28,6 @@ public abstract class BaseCommandFlag : ICommandFlag
 
             _value = value;
         }
-    }
-
-    protected virtual Func<string, bool> ValueValidationCallback =>
-        value => RegexHelper.GetCommandFlagDefaultValueValidationRegex().IsMatch(value);
-
-    protected BaseCommandFlag(string key, string value)
-    {
-        Key = key;
-        Value = value;
     }
 
     public override int GetHashCode()

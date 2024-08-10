@@ -2,7 +2,6 @@ using AegisCryptographer.Collections;
 using AegisCryptographer.Commands;
 using AegisCryptographer.Cryptography;
 using AegisCryptographer.Cryptography.Algorithms;
-using AegisCryptographer.Exceptions;
 using AegisCryptographer.Exceptions.Parsers;
 using AegisCryptographer.Extensions;
 using AegisCryptographer.Helpers;
@@ -25,13 +24,10 @@ public abstract class BaseParser(ICommandExecutionStringInfo commandExecutionStr
         var extractedStrings = RegexHelper.ExtractQuotesStringWithEscapedQuotes(
             CommandExecutionStringInfo.CommandArgumentsCollection[1..]).ToList();
 
-        if (extractedStrings.Count is 0)
-        {
-            throw new CommandInvalidArgumentException(argumentName, commandName);
-        }
+        if (extractedStrings.Count is 0) throw new CommandInvalidArgumentException(argumentName, commandName);
 
         var argumentString = extractedStrings[0];
-        
+
         if (string.IsNullOrEmpty(argumentString)) throw new CommandInvalidArgumentException(argumentName, commandName);
 
         var secret = RequireSecretWithEnsure();

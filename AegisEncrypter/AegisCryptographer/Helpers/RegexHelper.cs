@@ -23,7 +23,7 @@ public static partial class RegexHelper
         ArgumentNullException.ThrowIfNull(str);
 
         var (argumentsString, flagsMatchList) = GetArgumentsString(str);
-        
+
         return (argumentsString, GetFlags(flagsMatchList));
     }
 
@@ -48,13 +48,14 @@ public static partial class RegexHelper
 
         var argumentsString = defectiveArgumentsString;
 
-        notFlagValueStringsInfo.ForEach(bundle => argumentsString = argumentsString.ReplaceWithOverWriting(bundle.MatchString, bundle.Index));
-        
+        notFlagValueStringsInfo.ForEach(bundle =>
+            argumentsString = argumentsString.ReplaceWithOverWriting(bundle.MatchString, bundle.Index));
+
         argumentsString = Regex.Replace(argumentsString, WhiteSpacesRegex().ToString(), " ").Trim();
 
         return (argumentsString, flagsMatchList);
     }
-    
+
     private static IEnumerable<(string Flag, string Value)> GetFlags(IEnumerable<Match> matchCollection)
     {
         return matchCollection.Select(match =>
@@ -62,21 +63,13 @@ public static partial class RegexHelper
             string key, value;
 
             if ((key = GetGroupValue(match, "shortKey")).Length is not 0)
-            {
                 value = GetGroupValue(match, "shortValue");
-            }
             else if ((key = GetGroupValue(match, "longKey")).Length is not 0)
-            {
                 value = GetGroupValue(match, "longValue");
-            }
             else if ((key = GetGroupValue(match, "longKeyNoValue")).Length is not 0)
-            {
                 value = string.Empty;
-            }
             else
-            {
                 throw new InternalException("Unexpected code block entering.");
-            }
 
             return (key, value);
         });

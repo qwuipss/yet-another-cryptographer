@@ -11,9 +11,9 @@
 
     <ItemGroup>
         <PackageReference Include="coverlet.collector" Version="6.0.0"/>
-        <PackageReference Include="FluentAssertions" Version="7.0.0-alpha.4" />
+        <PackageReference Include="FluentAssertions" Version="7.0.0-alpha.4"/>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0"/>
-        <PackageReference Include="NSubstitute" Version="5.1.0" />
+        <PackageReference Include="NSubstitute" Version="5.1.0"/>
         <PackageReference Include="NUnit" Version="3.14.0"/>
         <PackageReference Include="NUnit.Analyzers" Version="3.9.0"/>
         <PackageReference Include="NUnit3TestAdapter" Version="4.5.0"/>
@@ -24,11 +24,11 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\AegisCryptographer\AegisCryptographer.csproj" />
+        <ProjectReference Include="..\AegisCryptographer\AegisCryptographer.csproj"/>
     </ItemGroup>
-    
+
     <ItemGroup>
-        <Folder Include="Helpers\" />
+        <Folder Include="Helpers\"/>
     </ItemGroup>
 
 </Project>

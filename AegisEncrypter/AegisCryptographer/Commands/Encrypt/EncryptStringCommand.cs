@@ -1,4 +1,3 @@
-using AegisCryptographer.Commands.Decrypt;
 using AegisCryptographer.Cryptography;
 
 namespace AegisCryptographer.Commands.Encrypt;

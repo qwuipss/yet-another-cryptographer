@@ -1,4 +1,3 @@
-using AegisCryptographer.Exceptions;
 using AegisCryptographer.Extensions;
 using AegisCryptographer.Helpers;
 using AegisCryptographer.Tests.NotTests.Extensions;
@@ -37,7 +36,8 @@ public class RegexHelper_Tests
                 yield return ($"encrypt string {"  with   spaces   ".WrapInQuotes()}", ["  with   spaces   "]);
                 yield return ($"encrypt string {"text after".WrapInQuotes()} -a aesgcm", ["text after"]);
                 yield return ($"encrypt string {"simple".WrapInQuotes()} random text", ["simple"]);
-                yield return ($"encrypt string {"any symb тест 123 \\:;!@%()[]{}=".WrapInQuotes()}", ["any symb тест 123 \\:;!@%()[]{}="]);
+                yield return ($"encrypt string {"any symb тест 123 \\:;!@%()[]{}=".WrapInQuotes()}",
+                    ["any symb тест 123 \\:;!@%()[]{}="]);
                 yield return ($"encrypt string {"two words".WrapInQuotes()}", ["two words"]);
                 yield return ($"encrypt string {"special \t symbols\r".WrapInQuotes()}", ["special \t symbols\r"]);
                 yield return ($"decrypt string {$"with escaped {"quotes".WrapInEscapedQuotes()}".WrapInQuotes()}",

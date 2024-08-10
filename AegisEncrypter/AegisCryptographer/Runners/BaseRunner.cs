@@ -1,7 +1,5 @@
 using AegisCryptographer.Commands;
-using AegisCryptographer.Commands.Flags;
 using AegisCryptographer.Exceptions;
-using AegisCryptographer.Exceptions.Collections;
 using AegisCryptographer.Exceptions.Parsers;
 using AegisCryptographer.Helpers;
 using AegisCryptographer.IO;
@@ -35,7 +33,6 @@ public abstract class BaseRunner(IReader reader, IWriter writer) : IRunner
         }
 
         while (true)
-        {
             try
             {
                 var command = parser.ParseCommand();
@@ -54,11 +51,5 @@ public abstract class BaseRunner(IReader reader, IWriter writer) : IRunner
                 Writer.WriteException(exc);
                 break;
             }
-            catch (InternalException)
-            {
-                //todo
-                throw;
-            }
-        }
     }
 }

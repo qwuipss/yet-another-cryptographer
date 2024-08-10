@@ -3,7 +3,7 @@ namespace AegisCryptographer.Commands;
 public class CommandExecutionResult(CommandExecutionStatus status)
 {
     public CommandExecutionStatus Status { get; } = status;
-    
+
     public static CommandExecutionResult Success()
     {
         return new CommandExecutionResult(CommandExecutionStatus.Success);

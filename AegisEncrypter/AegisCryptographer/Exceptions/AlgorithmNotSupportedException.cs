@@ -1,4 +1,3 @@
-using AegisCryptographer.Cryptography.Algorithms;
 using AegisCryptographer.Extensions;
 
 namespace AegisCryptographer.Exceptions;
