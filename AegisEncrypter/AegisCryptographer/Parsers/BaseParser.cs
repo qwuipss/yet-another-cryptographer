@@ -19,26 +19,25 @@ public abstract class BaseParser(ICommandExecutionStringInfo commandExecutionStr
 
     public abstract ICommand ParseCommand();
 
-    protected ICommand GetCryptoActionStringCommand(string argumentName, string commandName,
+    protected ICommand GetEvaluateStringCommand(string argumentName, string commandName,
         Func<string, ICryptoStream, ICommand> cryptoCommandCallback)
     {
-        string? str;
+        var extractedStrings = RegexHelper.ExtractQuotesStringWithEscapedQuotes(
+            CommandExecutionStringInfo.CommandArgumentsCollection[1..]).ToList();
 
-        try
-        {
-            str = RegexHelper.ExtractArgumentString(CommandExecutionStringInfo.CommandArgumentsCollection[1..]);
-        }
-        catch (AmbiguousArgumentException)
+        if (extractedStrings.Count is 0)
         {
             throw new CommandInvalidArgumentException(argumentName, commandName);
         }
 
-        if (string.IsNullOrEmpty(str)) throw new CommandInvalidArgumentException(argumentName, commandName);
+        var argumentString = extractedStrings[0];
+        
+        if (string.IsNullOrEmpty(argumentString)) throw new CommandInvalidArgumentException(argumentName, commandName);
 
         var secret = RequireSecretWithEnsure();
         var algorithm = ResolveCryptoAlgorithm(secret);
 
-        return cryptoCommandCallback(str, new CryptoStream(algorithm));
+        return cryptoCommandCallback(argumentString, new CryptoStream(algorithm));
     }
 
     protected string RequireSecret()
@@ -63,6 +62,7 @@ public abstract class BaseParser(ICommandExecutionStringInfo commandExecutionStr
 
     private ICryptoAlgorithm ResolveCryptoAlgorithm(string secret)
     {
+        //todo
         return new AesGcmAlgorithm(secret);
     }
 

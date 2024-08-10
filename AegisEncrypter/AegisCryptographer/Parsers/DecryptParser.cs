@@ -17,7 +17,7 @@ public class DecryptParser(ICommandExecutionStringInfo commandExecutionStringInf
 
         return commandSubType switch
         {
-            "string" or "str" => GetCryptoActionStringCommand("decrypt string", CommandName,
+            "string" or "str" => GetEvaluateStringCommand("decrypt string", CommandName,
                 (str, cryptoStream) => new DecryptStringCommand(str, cryptoStream)),
             _ => throw new CommandInvalidArgumentException(commandSubType,
                 CommandName)

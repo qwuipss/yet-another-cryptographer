@@ -1,4 +1,5 @@
 using AegisCryptographer.Commands;
+using AegisCryptographer.Commands.Flags;
 using AegisCryptographer.Exceptions;
 using AegisCryptographer.Exceptions.Collections;
 using AegisCryptographer.Exceptions.Parsers;
@@ -48,8 +49,7 @@ public abstract class BaseRunner(IReader reader, IWriter writer) : IRunner
             {
                 Writer.WriteException(exc);
             }
-            catch (Exception exc) when (exc is CommandInvalidArgumentException or CommandArgumentMissingException
-                                            or SecretTooLongException or FlagDuplicateException or CommandArgumentStringMissingException)
+            catch (Exception exc) when (exc is IntentionalException)
             {
                 Writer.WriteException(exc);
                 break;

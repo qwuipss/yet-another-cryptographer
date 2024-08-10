@@ -20,10 +20,9 @@ public class EncryptParser(ICommandExecutionStringInfo commandExecutionStringInf
 
         return commandSubType switch
         {
-            "string" or "str" => GetCryptoActionStringCommand("encrypt string", CommandName,
+            "string" or "str" => GetEvaluateStringCommand("encrypt string", CommandName,
                 (str, cryptoStream) => new EncryptStringCommand(str, cryptoStream)),
-            _ => throw new CommandInvalidArgumentException(commandSubType,
-                CommandName)
+            _ => throw new CommandInvalidArgumentException(commandSubType, CommandName)
         };
     }
 }

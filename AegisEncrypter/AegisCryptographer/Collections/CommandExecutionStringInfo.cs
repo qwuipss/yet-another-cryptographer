@@ -1,7 +1,7 @@
 namespace AegisCryptographer.Collections;
 
-public class CommandExecutionStringInfo(ICommandArgumentsCollection argumentsCollection, ICommandFlagsCollection flagsCollection) : ICommandExecutionStringInfo
+public class CommandExecutionStringInfo(ICommandArgumentsCollection commandArgumentsCollection, ICommandFlagsCollection commandFlagsCollection) : ICommandExecutionStringInfo
 {
-    public ICommandArgumentsCollection CommandArgumentsCollection { get; } = argumentsCollection;
-    public ICommandFlagsCollection CommandFlagsCollection { get; } = flagsCollection;
+    public ICommandArgumentsCollection CommandArgumentsCollection { get; } = commandArgumentsCollection;
+    public ICommandFlagsCollection CommandFlagsCollection { get; } = commandFlagsCollection;
 }

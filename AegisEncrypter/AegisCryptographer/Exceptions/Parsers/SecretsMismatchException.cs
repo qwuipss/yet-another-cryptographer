@@ -1,3 +1,3 @@
 namespace AegisCryptographer.Exceptions.Parsers;
 
-public class SecretsMismatchException() : Exception("Entered secrets doesn't match.");
+public class SecretsMismatchException() : IntentionalException("Entered secrets doesn't match.");

@@ -1,6 +1,7 @@
 using AegisCryptographer.Cryptography.Algorithms;
+using AegisCryptographer.Extensions;
 
 namespace AegisCryptographer.Exceptions;
 
-public class AlgorithmNotSupportedException(CryptoAlgorithm algorithm)
-    : Exception($"Algorithm \"{algorithm}\" is not supported.");
+public class AlgorithmNotSupportedException(string algorithm)
+    : IntentionalException($"Algorithm {algorithm.WrapInQuotes()} is not supported.");
