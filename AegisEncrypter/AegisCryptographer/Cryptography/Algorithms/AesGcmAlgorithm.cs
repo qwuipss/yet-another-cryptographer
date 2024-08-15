@@ -9,7 +9,7 @@ public class AesGcmAlgorithm(string secret) : ICryptoAlgorithm
     private static readonly int TagBytesSize = AesGcm.TagByteSizes.MaxSize;
     private static readonly int NonceSize = AesGcm.NonceByteSizes.MaxSize;
 
-    private readonly AesGcm _aes = new(secret.ToCipherKeyWithAutoPadding(), TagBytesSize);
+    private readonly AesGcm _aes = new(secret.ToPaddedSecretKey(), TagBytesSize);
 
     public byte[] Encrypt(byte[] data)
     {

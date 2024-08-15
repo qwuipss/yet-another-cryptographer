@@ -2,6 +2,7 @@ using AegisCryptographer.Collections;
 using AegisCryptographer.Commands;
 using AegisCryptographer.Cryptography;
 using AegisCryptographer.Cryptography.Algorithms;
+using AegisCryptographer.Exceptions;
 using AegisCryptographer.Exceptions.Parsers;
 using AegisCryptographer.Extensions;
 using AegisCryptographer.Helpers;

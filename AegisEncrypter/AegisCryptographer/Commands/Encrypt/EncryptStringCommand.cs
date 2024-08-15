@@ -8,7 +8,7 @@ public class EncryptStringCommand(string str, ICryptoStream cryptoStream) : ICom
     {
         var encrypted = cryptoStream.Encrypt(str);
 
-        executionCallback($"Encrypted string: \"{encrypted}\"");
+        executionCallback($"Encrypted string: \"{encrypted}\".");
 
         return CommandExecutionResult.Success();
     }

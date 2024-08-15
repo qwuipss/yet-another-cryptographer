@@ -26,7 +26,7 @@ public abstract class BaseRunner(IReader reader, IWriter writer) : IRunner
         {
             return;
         }
-        catch (Exception exc) when (exc is ParserResolveException)
+        catch (IntentionalException exc)
         {
             Writer.WriteException(exc);
             return;
@@ -42,11 +42,11 @@ public abstract class BaseRunner(IReader reader, IWriter writer) : IRunner
 
                 break;
             }
-            catch (Exception exc) when (exc is SecretsMismatchException)
+            catch (SecretsMismatchException exc)
             {
                 Writer.WriteException(exc);
             }
-            catch (Exception exc) when (exc is IntentionalException)
+            catch (IntentionalException exc)
             {
                 Writer.WriteException(exc);
                 break;

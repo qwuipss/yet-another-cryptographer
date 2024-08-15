@@ -6,18 +6,12 @@ namespace AegisCryptographer.Collections;
 public class CommandArgumentsCollection(IList<string> list)
     : ReadOnlyCollection<string>(list), ICommandArgumentsCollection
 {
-    public string this[Range range]
-    {
-        get { return string.Join(" ", this.Where((_, i) => i >= range.Start.Value).Select(x => x)); }
-    }
+    private int _index;
 
-    public new string this[int index]
+    public string Next()
     {
-        get
-        {
-            if (index >= Count) throw new CommandArgumentMissingException();
+        if (_index >= Count) throw new CommandArgumentMissingException();
 
-            return base[index];
-        }
+        return base[_index++];
     }
 }

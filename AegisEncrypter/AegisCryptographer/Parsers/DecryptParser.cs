@@ -1,6 +1,7 @@
 using AegisCryptographer.Collections;
 using AegisCryptographer.Commands;
 using AegisCryptographer.Commands.Decrypt;
+using AegisCryptographer.Exceptions;
 using AegisCryptographer.Exceptions.Parsers;
 using AegisCryptographer.IO;
 
@@ -13,7 +14,7 @@ public class DecryptParser(ICommandExecutionStringInfo commandExecutionStringInf
 
     public override ICommand ParseCommand()
     {
-        var commandSubType = CommandExecutionStringInfo.CommandArgumentsCollection[0];
+        var commandSubType = CommandExecutionStringInfo.CommandArgumentsCollection.Next();
 
         return commandSubType switch
         {

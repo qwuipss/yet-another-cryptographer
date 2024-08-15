@@ -8,7 +8,7 @@ public class DecryptStringCommand(string str, ICryptoStream cryptoStream) : ICom
     {
         var decrypted = cryptoStream.Decrypt(str);
 
-        executionCallback($"Decrypted string: \"{decrypted}\"");
+        executionCallback($"Decrypted string: \"{decrypted}\".");
 
         return CommandExecutionResult.Success();
     }
