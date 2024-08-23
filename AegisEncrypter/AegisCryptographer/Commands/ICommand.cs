@@ -1,3 +1,5 @@
+using AegisCryptographer.Commands.Execution;
+
 namespace AegisCryptographer.Commands;
 
 public interface ICommand

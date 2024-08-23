@@ -1,9 +1,9 @@
 using AegisCryptographer.Commands;
+using AegisCryptographer.Commands.Execution;
+using AegisCryptographer.Commands.Flags;
+using AegisCryptographer.Commands.Resolvers;
 using AegisCryptographer.Exceptions;
-using AegisCryptographer.Exceptions.Parsers;
-using AegisCryptographer.Helpers;
 using AegisCryptographer.IO;
-using AegisCryptographer.Parsers;
 
 namespace AegisCryptographer.Runners;
 
@@ -16,11 +16,12 @@ public abstract class BaseRunner(IReader reader, IWriter writer) : IRunner
 
     protected void RunInput(string? input)
     {
-        IParser parser;
+        ICommand command;
+        var commandResolver = new CommandResolver(input, new CommandFlagsResolver(), Reader, Writer);
 
         try
         {
-            parser = ParsersHelper.CreateParser(input, Reader, Writer);
+            command = commandResolver.Resolve();
         }
         catch (InputEmptyException)
         {
@@ -35,7 +36,6 @@ public abstract class BaseRunner(IReader reader, IWriter writer) : IRunner
         while (true)
             try
             {
-                var command = parser.ParseCommand();
                 var executor = new CommandExecutor(Writer);
 
                 executor.Execute(command);

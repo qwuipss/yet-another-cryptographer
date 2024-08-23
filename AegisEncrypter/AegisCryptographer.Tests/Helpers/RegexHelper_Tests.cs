@@ -7,20 +7,20 @@ namespace AegisCryptographer.Tests.Helpers;
 
 public class RegexHelper_Tests
 {
-    [TestCaseSource(typeof(TestCases), nameof(TestCases.ExtractQuotesStringWithEscapedQuotes))]
-    public void ExtractQuotesStringWithEscapedQuotes_should_extract_parameter_string_in_double_quotes(
-        (string Data, IEnumerable<string> ExpectedStrings) bundle)
+    [TestCaseSource(typeof(TestCases), nameof(TestCases.GetQuotesStringWithEscapedQuotes))]
+    public void GetQuotesStringWithEscapedQuotes_should_extract_string_in_quotes_with_escaped_quotes(
+        (string Data, string? ExpectedString) bundle)
     {
-        var quotesStrings = RegexHelper.ExtractQuotesStringWithEscapedQuotes(bundle.Data);
+        var quotesStrings = RegexHelper.GetQuotesStringWithEscapedQuotes(bundle.Data);
 
-        quotesStrings.Should().BeEquivalentTo(bundle.ExpectedStrings);
+        quotesStrings.Should().BeEquivalentTo(bundle.ExpectedString);
     }
 
-    [TestCaseSource(typeof(TestCases), nameof(TestCases.ExtractFlags))]
-    public void ExtractFlags_should_extract_arguments_string_and_flags(
+    [TestCaseSource(typeof(TestCases), nameof(TestCases.SplitExecutionStringInfo))]
+    public void SplitExecutionStringInfo_should_split_string_on_arguments_string_and_flags(
         (string Data, string ExpectedArgumentsString, IEnumerable<(string Flag, string Value)> ExpectedFlags) bundle)
     {
-        var (argumentsString, flags) = RegexHelper.ExtractFlags(bundle.Data);
+        var (argumentsString, flags) = RegexHelper.SplitExecutionStringInfo(bundle.Data);
 
         argumentsString.Should().BeEquivalentTo(bundle.ExpectedArgumentsString);
         flags.Should().BeEquivalentTo(bundle.ExpectedFlags);
@@ -28,41 +28,35 @@ public class RegexHelper_Tests
 
     private static class TestCases
     {
-        public static IEnumerable<(string Data, IEnumerable<string> Expected)> ExtractQuotesStringWithEscapedQuotes
+        public static IEnumerable<(string Data, string? ExpectedString)> GetQuotesStringWithEscapedQuotes
         {
             get
             {
-                yield return ($"encrypt string {string.Empty.WrapInQuotes()}", [string.Empty]);
-                yield return ($"encrypt string {"  with   spaces   ".WrapInQuotes()}", ["  with   spaces   "]);
-                yield return ($"encrypt string {"text after".WrapInQuotes()} -a aesgcm", ["text after"]);
-                yield return ($"encrypt string {"simple".WrapInQuotes()} random text", ["simple"]);
-                yield return ($"encrypt string {"any symb тест 123 \\:;!@%()[]{}=".WrapInQuotes()}",
-                    ["any symb тест 123 \\:;!@%()[]{}="]);
-                yield return ($"encrypt string {"two words".WrapInQuotes()}", ["two words"]);
-                yield return ($"encrypt string {"special \t symbols\r".WrapInQuotes()}", ["special \t symbols\r"]);
-                yield return ($"decrypt string {$"with escaped {"quotes".WrapInEscapedQuotes()}".WrapInQuotes()}",
-                    [$"with escaped {"quotes".WrapInQuotes()}"]);
+                yield return (string.Empty, null);
+                yield return (string.Empty.WrapInQuotes(), string.Empty);
+                yield return ("simple".WrapInQuotes(), "simple");
+                yield return ("  with   spaces   ".WrapInQuotes(), "  with   spaces   ");
+                yield return ("any symb тест 123 \\:;!@%()[]{}=".WrapInQuotes(), "any symb тест 123 \\:;!@%()[]{}=");
+                yield return ("special \t symbols\r".WrapInQuotes(), "special \t symbols\r");
+                yield return ("caSE  SenSEtIve".WrapInQuotes(), "caSE  SenSEtIve");
+                yield return ($"with escaped {"quotes".WrapInEscapedQuotes()}".WrapInQuotes(),
+                    $"with escaped {"quotes".WrapInQuotes()}");
                 yield return (
-                    $"decrypt string {$"with many escaped {string.Empty.WrapInEscapedQuotes()} {"quotes".WrapInEscapedQuotes()}".WrapInQuotes()}",
-                    [$"with many escaped {string.Empty.WrapInQuotes()} {"quotes".WrapInQuotes()}"]);
-                yield return (
-                    $"decrypt string {$"with many escaped {string.Empty.WrapInEscapedQuotes()} {"quotes".WrapInEscapedQuotes()}".WrapInQuotes()} {$"another {"escaped".WrapInEscapedQuotes()}".WrapInQuotes()}",
-                    [
-                        $"with many escaped {string.Empty.WrapInQuotes()} {"quotes".WrapInQuotes()}",
-                        $"another {"escaped".WrapInQuotes()}"
-                    ]);
-                yield return (
-                    $"{$"escaped {"before".WrapInEscapedQuotes()}".WrapInQuotes()} encrypt string {"another escaped".WrapInQuotes()}",
-                    [$"escaped {"before".WrapInQuotes()}", "another escaped"]);
+                    $"with many escaped {string.Empty.WrapInEscapedQuotes()} {"quotes".WrapInEscapedQuotes()}"
+                        .WrapInQuotes(),
+                    $"with many escaped {string.Empty.WrapInQuotes()} {"quotes".WrapInQuotes()}");
             }
         }
 
         public static IEnumerable<(string Data, string ExpectedArgumentsString, IEnumerable<(string Flag, string Value)>
                 ExpectedFlags)>
-            ExtractFlags
+            SplitExecutionStringInfo
         {
             get
             {
+                yield return (string.Empty,
+                    string.Empty,
+                    []);
                 yield return ($"encrypt string {"hello".WrapInQuotes()} -flag simple",
                     $"encrypt string {"hello".WrapInQuotes()}",
                     [("-flag", "simple")]);

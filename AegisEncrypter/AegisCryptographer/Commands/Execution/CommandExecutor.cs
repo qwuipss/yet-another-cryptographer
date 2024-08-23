@@ -1,6 +1,6 @@
 using AegisCryptographer.IO;
 
-namespace AegisCryptographer.Commands;
+namespace AegisCryptographer.Commands.Execution;
 
 public class CommandExecutor(IWriter writer) : ICommandExecutor
 {

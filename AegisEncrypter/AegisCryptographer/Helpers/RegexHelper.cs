@@ -9,25 +9,21 @@ public static partial class RegexHelper
     [GeneratedRegex("[a-zA-Z0-9\\-]+")]
     public static partial Regex GetCommandFlagDefaultValueValidationRegex();
 
-    public static IEnumerable<string> ExtractQuotesStringWithEscapedQuotes(string str)
+    public static string? GetQuotesStringWithEscapedQuotes(string str)
     {
-        ArgumentNullException.ThrowIfNull(str);
-
-        var matchCollection = QuotesStringWithEscapedQuotesRegex().Matches(str);
-
-        return matchCollection.Select(x => GetGroupValue(x, "value").Replace("\\\"", "\""));
+        return QuotesStringWithEscapedQuotesRegex().Matches(str)
+            .Select(y => GetGroupValue(y, "value").Replace("\\\"", "\"")).SingleOrDefault();
     }
 
-    public static (string ArgumentsString, IEnumerable<(string Flag, string Value)> Flags) ExtractFlags(string str)
+    public static (string ArgumentsString, IEnumerable<(string Flag, string Value)> Flags)
+        SplitExecutionStringInfo(string str)
     {
-        ArgumentNullException.ThrowIfNull(str);
+        var (argumentsString, flagsMatchList) = GetCommandArgumentsString(str);
 
-        var (argumentsString, flagsMatchList) = GetArgumentsString(str);
-
-        return (argumentsString, GetFlags(flagsMatchList));
+        return (argumentsString, GetCommandFlags(flagsMatchList));
     }
 
-    private static (string ArgumentsString, List<Match> FlagsMatchList) GetArgumentsString(string str)
+    private static (string ArgumentsString, List<Match> FlagsMatchList) GetCommandArgumentsString(string str)
     {
         var notFlagValueStringsInfo = new List<(string MatchString, int Index)>();
 
@@ -56,7 +52,7 @@ public static partial class RegexHelper
         return (argumentsString, flagsMatchList);
     }
 
-    private static IEnumerable<(string Flag, string Value)> GetFlags(IEnumerable<Match> matchCollection)
+    private static IEnumerable<(string Flag, string Value)> GetCommandFlags(IEnumerable<Match> matchCollection)
     {
         return matchCollection.Select(match =>
         {

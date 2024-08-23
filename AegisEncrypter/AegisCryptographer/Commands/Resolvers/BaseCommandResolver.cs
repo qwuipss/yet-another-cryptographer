@@ -1,48 +1,49 @@
 using AegisCryptographer.Collections;
-using AegisCryptographer.Commands;
 using AegisCryptographer.Cryptography;
 using AegisCryptographer.Cryptography.Algorithms;
 using AegisCryptographer.Exceptions;
-using AegisCryptographer.Exceptions.Parsers;
 using AegisCryptographer.Extensions;
 using AegisCryptographer.Helpers;
 using AegisCryptographer.IO;
+using static AegisCryptographer.Commands.ExpectedCommandsTokens;
 
-namespace AegisCryptographer.Parsers;
+namespace AegisCryptographer.Commands.Resolvers;
 
-public abstract class BaseParser(ICommandExecutionStringInfo commandExecutionStringInfo, IReader reader, IWriter writer)
-    : IParser
+public abstract class BaseCommandResolver(
+    ICommandExecutionStringInfo commandExecutionStringInfo,
+    IReader reader,
+    IWriter writer)
+    : ICommandResolver
 {
     protected ICommandExecutionStringInfo CommandExecutionStringInfo { get; } = commandExecutionStringInfo;
     private IReader Reader { get; } = reader;
     private IWriter Writer { get; } = writer;
 
-    public abstract ICommand ParseCommand();
+    public abstract ICommand Resolve();
 
-    protected ICommand GetEvaluateStringCommand(string argumentName, string commandName,
+    protected ICommand GetTransformStringCommand(string commandName,
         Func<string, ICryptoStream, ICommand> cryptoCommandCallback)
     {
-        var extractedStrings = RegexHelper.ExtractQuotesStringWithEscapedQuotes(
-            CommandExecutionStringInfo.CommandArgumentsCollection[1..]).ToList();
+        var transformString = RegexHelper.GetQuotesStringWithEscapedQuotes(
+            CommandExecutionStringInfo.CommandArgumentsCollection.Next(StringToTransform));
 
-        if (extractedStrings.Count is 0) throw new CommandInvalidArgumentException(argumentName, commandName);
+        if (string.IsNullOrEmpty(transformString))
+            throw new CommandInvalidArgumentException(StringToTransform, commandName);
 
-        var argumentString = extractedStrings[0];
-
-        if (string.IsNullOrEmpty(argumentString)) throw new CommandInvalidArgumentException(argumentName, commandName);
+        CommandExecutionStringInfo.CommandArgumentsCollection.ThrowIfNotSealed();
 
         var secret = RequireSecretWithEnsure();
         var algorithm = ResolveCryptoAlgorithm(secret);
 
-        return cryptoCommandCallback(argumentString, new CryptoStream(algorithm));
+        return cryptoCommandCallback(transformString, new CryptoStream(algorithm));
     }
 
-    protected string RequireSecret()
+    private string RequireSecret()
     {
         return RequireSecret(Writer.WriteEnterSecret);
     }
 
-    protected string RequireSecretWithEnsure()
+    private string RequireSecretWithEnsure()
     {
         var secret = RequireSecret();
 #if !DEBUG // disable password ensure in debug mode

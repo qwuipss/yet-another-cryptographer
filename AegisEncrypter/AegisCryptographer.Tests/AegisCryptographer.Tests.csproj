@@ -27,8 +27,4 @@
         <ProjectReference Include="..\AegisCryptographer\AegisCryptographer.csproj"/>
     </ItemGroup>
 
-    <ItemGroup>
-        <Folder Include="Helpers\"/>
-    </ItemGroup>
-
 </Project>

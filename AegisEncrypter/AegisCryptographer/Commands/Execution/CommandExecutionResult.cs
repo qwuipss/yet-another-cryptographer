@@ -1,4 +1,4 @@
-namespace AegisCryptographer.Commands;
+namespace AegisCryptographer.Commands.Execution;
 
 public class CommandExecutionResult(CommandExecutionStatus status)
 {

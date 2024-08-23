@@ -1,6 +1,7 @@
 namespace AegisCryptographer.Collections;
 
-public interface ICommandArgumentsCollection
+public interface ICommandArgumentsCollection : IEnumerable<string>
 {
-    public string Next();
+    public string Next(string expectedCommandToken);
+    public bool IsSealed(out List<string>? unexpectedArguments);
 }
