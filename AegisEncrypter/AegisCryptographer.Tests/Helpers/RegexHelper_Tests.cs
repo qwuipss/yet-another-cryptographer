@@ -5,6 +5,7 @@ using FluentAssertions;
 
 namespace AegisCryptographer.Tests.Helpers;
 
+[TestFixture]
 public class RegexHelper_Tests
 {
     [TestCaseSource(typeof(TestCases), nameof(TestCases.GetQuotesStringWithEscapedQuotes))]

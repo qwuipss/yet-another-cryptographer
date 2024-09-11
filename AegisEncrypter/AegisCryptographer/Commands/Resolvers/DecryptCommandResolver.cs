@@ -20,8 +20,7 @@ public class DecryptCommandResolver(
         {
             StringLongToken or StringShortToken => GetTransformStringCommand(CommandsTokens.DecryptLongToken,
                 (str, cryptoStream) => new DecryptStringCommand(str, cryptoStream)),
-            _ => throw new CommandInvalidArgumentException(transformTargetToken,
-                CommandsTokens.DecryptLongToken)
+            _ => throw new CommandInvalidArgumentException(transformTargetToken, CommandsTokens.DecryptLongToken)
         };
     }
 }

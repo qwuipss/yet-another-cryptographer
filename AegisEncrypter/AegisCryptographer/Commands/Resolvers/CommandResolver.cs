@@ -24,17 +24,15 @@ public class CommandResolver(
         if (StringExtensions.IsNullOrEmptyOrWhitespace(input)) throw new InputEmptyException();
 
         var (argumentsString, flagsBundles) = RegexHelper.SplitExecutionStringInfo(input!);
-        var commandExecutionStringInfo = new CommandExecutionStringInfo(SplitCommandArguments(argumentsString),
-            ResolveCommandFlags(flagsBundles, flagsResolver));
+        var commandExecutionStringInfo =
+            new CommandExecutionStringInfo(SplitCommandArguments(argumentsString), ResolveCommandFlags(flagsBundles, flagsResolver));
 
         var commandToExecuteToken = commandExecutionStringInfo.CommandArgumentsCollection.Next(CommandToExecute);
 
         return commandToExecuteToken switch
         {
-            EncryptLongToken or EncryptShortToken => new EncryptCommandResolver(commandExecutionStringInfo, Reader,
-                Writer).Resolve(),
-            DecryptLongToken or DecryptShortToken => new DecryptCommandResolver(commandExecutionStringInfo, Reader,
-                Writer).Resolve(),
+            EncryptLongToken or EncryptShortToken => new EncryptCommandResolver(commandExecutionStringInfo, Reader, Writer).Resolve(),
+            DecryptLongToken or DecryptShortToken => new DecryptCommandResolver(commandExecutionStringInfo, Reader, Writer).Resolve(),
             _ => throw new CommandResolveException(commandToExecuteToken)
         };
     }

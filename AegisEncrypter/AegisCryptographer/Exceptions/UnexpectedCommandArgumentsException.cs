@@ -1,4 +1,5 @@
 namespace AegisCryptographer.Exceptions;
 
-public class UnexpectedCommandArgumentsException(IEnumerable<string> arguments)
-    : IntentionalException($"Unexpected argument [{string.Join(", ", arguments)}...].");
+public class UnexpectedCommandArgumentsException(IEnumerable<string> arguments, bool isArgumentsOmitted = true)
+    : IntentionalException(
+        $"Unexpected arguments [{string.Join(", ", arguments)}, {(isArgumentsOmitted ? "..." : string.Empty)}].");

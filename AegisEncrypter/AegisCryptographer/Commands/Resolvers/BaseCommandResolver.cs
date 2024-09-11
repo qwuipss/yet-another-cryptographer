@@ -27,8 +27,7 @@ public abstract class BaseCommandResolver(
         var transformString = RegexHelper.GetQuotesStringWithEscapedQuotes(
             CommandExecutionStringInfo.CommandArgumentsCollection.Next(StringToTransform));
 
-        if (string.IsNullOrEmpty(transformString))
-            throw new CommandInvalidArgumentException(StringToTransform, commandName);
+        if (string.IsNullOrEmpty(transformString)) throw new CommandInvalidArgumentException(StringToTransform, commandName);
 
         CommandExecutionStringInfo.CommandArgumentsCollection.ThrowIfNotSealed();
 
@@ -49,10 +48,7 @@ public abstract class BaseCommandResolver(
 #if !DEBUG // disable password ensure in debug mode
         var repeatedSecret = RequireSecret(Writer.WriteRepeatSecret);
 
-        if (secret != repeatedSecret)
-        {
-            throw new SecretsMismatchException();
-        }
+        if (secret != repeatedSecret) throw new SecretsMismatchException();
 #endif
 
         return secret;

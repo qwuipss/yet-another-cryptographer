@@ -13,8 +13,7 @@ public abstract class BaseCommandFlag : ICommandFlag
         Value = value;
     }
 
-    protected virtual Func<string, bool> ValueValidationCallback =>
-        value => RegexHelper.GetCommandFlagDefaultValueValidationRegex().IsMatch(value);
+    protected virtual Func<string, bool> ValueValidationCallback => value => RegexHelper.GetCommandFlagDefaultValueValidationRegex().IsMatch(value);
 
     public string Key { get; }
 

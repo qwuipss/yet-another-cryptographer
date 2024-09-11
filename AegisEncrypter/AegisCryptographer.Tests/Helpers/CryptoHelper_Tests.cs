@@ -3,6 +3,7 @@ using FluentAssertions;
 
 namespace AegisCryptographer.Tests.Helpers;
 
+[TestFixture]
 public class CryptoHelper_Tests
 {
     [Test]
@@ -16,10 +17,10 @@ public class CryptoHelper_Tests
             CryptoHelper.GetRandomNonce(size),
             CryptoHelper.GetRandomNonce(size)
         };
-   
+
         Assert.That(nonce, Is.Unique);
     }
-    
+
     [TestCase(12)]
     [TestCase(13)]
     [TestCase(14)]

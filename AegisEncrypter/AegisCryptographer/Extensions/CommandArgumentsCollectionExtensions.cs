@@ -9,12 +9,13 @@ public static class CommandArgumentsCollectionExtensions
 
     public static void ThrowIfNotSealed(this ICommandArgumentsCollection commandArgumentsCollection)
     {
-        var isSealed = commandArgumentsCollection.IsSealed(out var unexpectedArguments);
-
-        if (isSealed) return;
+        if (commandArgumentsCollection.IsSealed(out var unexpectedArguments)) return;
 
         if (unexpectedArguments!.Count is 1) throw new UnexpectedCommandArgumentException(unexpectedArguments.Single());
 
-        throw new UnexpectedCommandArgumentsException(unexpectedArguments!.Take(UnexpectedArgumentsExposeMaxCount));
+        if (unexpectedArguments.Count > UnexpectedArgumentsExposeMaxCount)
+            throw new UnexpectedCommandArgumentsException(unexpectedArguments.Take(UnexpectedArgumentsExposeMaxCount));
+
+        throw new UnexpectedCommandArgumentsException(unexpectedArguments, false);
     }
 }
