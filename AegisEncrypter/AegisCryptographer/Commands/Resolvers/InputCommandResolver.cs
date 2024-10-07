@@ -29,10 +29,10 @@ public class InputCommandResolver(
     {
         if (Input.IsNullOrEmptyOrWhitespace()) throw new InputEmptyException();
 
-        var splitExecutionStringCollection = RegexService.SplitExecutionStringInfo(Input!);
+        var splitExecutionStringInfo = RegexService.SplitExecutionStringInfo(Input!);
         var commandExecutionStringInfo = new CommandExecutionStringInfo(
-            GetCommandArgumentsCollection(splitExecutionStringCollection.Arguments),
-            GetCommandFlagsCollection(splitExecutionStringCollection.Flags, FlagsResolver));
+            GetCommandArgumentsCollection(splitExecutionStringInfo.Arguments),
+            GetCommandFlagsCollection(splitExecutionStringInfo.Flags, FlagsResolver));
 
         var commandToExecuteToken = commandExecutionStringInfo.CommandArgumentsCollection.Next(CommandToExecute);
 
