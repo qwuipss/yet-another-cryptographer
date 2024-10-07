@@ -2,7 +2,7 @@ namespace AegisCryptographer.IO;
 
 public interface IReader
 {
-    public string? ReadLine();
+    string? ReadLine();
 
-    public string ReadSecret();
+    string ReadSecret();
 }

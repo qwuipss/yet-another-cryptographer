@@ -4,6 +4,7 @@ using AegisCryptographer.Commands.Flags;
 using AegisCryptographer.Commands.Resolvers;
 using AegisCryptographer.Exceptions;
 using AegisCryptographer.IO;
+using AegisCryptographer.Services;
 
 namespace AegisCryptographer.Runners;
 
@@ -17,7 +18,7 @@ public abstract class BaseRunner(IReader reader, IWriter writer) : IRunner
     protected void RunInput(string? input)
     {
         ICommand command;
-        var commandResolver = new CommandResolver(input, new CommandFlagsResolver(), Reader, Writer);
+        var commandResolver = new InputCommandResolver(input, new RegexService(), new CommandFlagsResolver(), Reader, Writer);
 
         try
         {

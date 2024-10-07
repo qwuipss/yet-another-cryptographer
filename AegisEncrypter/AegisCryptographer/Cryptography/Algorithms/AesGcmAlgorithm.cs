@@ -1,19 +1,21 @@
 using System.Security.Cryptography;
 using AegisCryptographer.Extensions;
-using AegisCryptographer.Helpers;
+using AegisCryptographer.Services;
 
 namespace AegisCryptographer.Cryptography.Algorithms;
 
-public class AesGcmAlgorithm(string secret) : ICryptoAlgorithm
+public class AesGcmAlgorithm(string secret, ICryptoService cryptoService) : ICryptoAlgorithm
 {
     private static readonly int TagBytesSize = AesGcm.TagByteSizes.MaxSize;
     private static readonly int NonceSize = AesGcm.NonceByteSizes.MaxSize;
 
+    private ICryptoService CryptoService { get; } = cryptoService;
+    
     private readonly AesGcm _aes = new(secret.ToPaddedSecretKey(), TagBytesSize);
 
     public byte[] Encrypt(byte[] data)
     {
-        var nonce = CryptoHelper.GetRandomNonce(NonceSize);
+        var nonce = CryptoService.GetRandomNonce(NonceSize);
         var cipher = new byte[data.Length];
         var tag = new byte[TagBytesSize];
 

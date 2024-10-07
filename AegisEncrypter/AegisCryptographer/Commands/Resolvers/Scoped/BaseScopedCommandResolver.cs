@@ -3,28 +3,29 @@ using AegisCryptographer.Cryptography;
 using AegisCryptographer.Cryptography.Algorithms;
 using AegisCryptographer.Exceptions;
 using AegisCryptographer.Extensions;
-using AegisCryptographer.Helpers;
 using AegisCryptographer.IO;
+using AegisCryptographer.Services;
 using static AegisCryptographer.Commands.ExpectedCommandsTokens;
 
-namespace AegisCryptographer.Commands.Resolvers;
+namespace AegisCryptographer.Commands.Resolvers.Scoped;
 
-public abstract class BaseCommandResolver(
+public abstract class BaseScopedCommandResolver(
+    IRegexService regexService,
     ICommandExecutionStringInfo commandExecutionStringInfo,
     IReader reader,
     IWriter writer)
     : ICommandResolver
 {
-    protected ICommandExecutionStringInfo CommandExecutionStringInfo { get; } = commandExecutionStringInfo;
+    private IRegexService RegexService { get; } = regexService;
     private IReader Reader { get; } = reader;
     private IWriter Writer { get; } = writer;
+    protected ICommandExecutionStringInfo CommandExecutionStringInfo { get; } = commandExecutionStringInfo;
 
     public abstract ICommand Resolve();
 
-    protected ICommand GetTransformStringCommand(string commandName,
-        Func<string, ICryptoStream, ICommand> cryptoCommandCallback)
+    protected ICommand GetTransformStringCommand(string commandName, Func<string, ICryptoStream, ICommand> cryptoCommandCallback)
     {
-        var transformString = RegexHelper.GetQuotesStringWithEscapedQuotes(
+        var transformString = RegexService.GetQuotesStringWithEscapedQuotes(
             CommandExecutionStringInfo.CommandArgumentsCollection.Next(StringToTransform));
 
         if (string.IsNullOrEmpty(transformString)) throw new CommandInvalidArgumentException(StringToTransform, commandName);
@@ -57,7 +58,7 @@ public abstract class BaseCommandResolver(
     private ICryptoAlgorithm ResolveCryptoAlgorithm(string secret)
     {
         //todo
-        return new AesGcmAlgorithm(secret);
+        return new AesGcmAlgorithm(secret, new CryptoService());
     }
 
     private string RequireSecret(Action writeCallback)
@@ -68,7 +69,7 @@ public abstract class BaseCommandResolver(
         {
             writeCallback();
             input = Reader.ReadSecret();
-        } while (StringExtensions.IsNullOrEmptyOrWhitespace(input));
+        } while (input.IsNullOrEmptyOrWhitespace());
 
         return input;
     }

@@ -3,8 +3,7 @@ using AegisCryptographer.Exceptions;
 
 namespace AegisCryptographer.Collections;
 
-public class CommandArgumentsCollection(IList<string> list)
-    : ReadOnlyCollection<string>(list), ICommandArgumentsCollection
+public class CommandArgumentsCollection(IList<string> list) : ReadOnlyCollection<string>(list), ICommandArgumentsCollection
 {
     private int _index;
 

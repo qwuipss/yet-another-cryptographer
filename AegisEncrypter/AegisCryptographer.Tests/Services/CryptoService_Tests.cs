@@ -1,11 +1,19 @@
-using AegisCryptographer.Helpers;
+using AegisCryptographer.Services;
 using FluentAssertions;
 
 namespace AegisCryptographer.Tests.Helpers;
 
 [TestFixture]
-public class CryptoHelper_Tests
+public class CryptoService_Tests
 {
+    private CryptoService _cryptoService;
+
+    [SetUp]
+    public void SetUp()
+    {
+        _cryptoService = new CryptoService();
+    }
+    
     [Test]
     public void GetRandomNonce_should_generate_unique_random_nonce()
     {
@@ -13,9 +21,9 @@ public class CryptoHelper_Tests
 
         var nonce = new List<byte[]>
         {
-            CryptoHelper.GetRandomNonce(size),
-            CryptoHelper.GetRandomNonce(size),
-            CryptoHelper.GetRandomNonce(size)
+            _cryptoService.GetRandomNonce(size),
+            _cryptoService.GetRandomNonce(size),
+            _cryptoService.GetRandomNonce(size)
         };
 
         Assert.That(nonce, Is.Unique);
@@ -28,6 +36,6 @@ public class CryptoHelper_Tests
     [TestCase(16)]
     public void GetRandomNonce_should_generate_nonce_with_required_length(int size)
     {
-        CryptoHelper.GetRandomNonce(size).Should().HaveCount(size);
+        _cryptoService.GetRandomNonce(size).Should().HaveCount(size);
     }
 }

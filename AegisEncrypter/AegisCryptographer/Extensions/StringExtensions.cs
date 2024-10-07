@@ -7,7 +7,7 @@ public static class StringExtensions
 {
     private static readonly ImmutableArray<int> DefaultCipherKeyPaddings = [128 / 8, 192 / 8, 256 / 8];
 
-    public static bool IsNullOrEmptyOrWhitespace(string? str)
+    public static bool IsNullOrEmptyOrWhitespace(this string? str)
     {
         return string.IsNullOrEmpty(str) || string.IsNullOrWhiteSpace(str);
     }

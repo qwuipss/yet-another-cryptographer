@@ -1,10 +1,10 @@
 using System.Security.Cryptography;
 
-namespace AegisCryptographer.Helpers;
+namespace AegisCryptographer.Services;
 
-public static class CryptoHelper
+public class CryptoService : ICryptoService
 {
-    public static byte[] GetRandomNonce(int size)
+    public byte[] GetRandomNonce(int size)
     {
         var nonce = new byte[size];
 

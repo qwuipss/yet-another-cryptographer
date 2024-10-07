@@ -1,29 +1,40 @@
 using System.Text.RegularExpressions;
+using AegisCryptographer.Collections;
+using AegisCryptographer.Commands.Resolvers;
 using AegisCryptographer.Exceptions;
 using AegisCryptographer.Extensions;
 
-namespace AegisCryptographer.Helpers;
+namespace AegisCryptographer.Services;
 
-public static partial class RegexHelper
+public partial class RegexService : IRegexService
 {
     [GeneratedRegex("[a-zA-Z0-9\\-]+")]
     public static partial Regex GetCommandFlagDefaultValueValidationRegex();
 
-    public static string? GetQuotesStringWithEscapedQuotes(string str)
+    public string? GetQuotesStringWithEscapedQuotes(string str)
     {
-        return QuotesStringWithEscapedQuotesRegex().Matches(str)
-            .Select(y => GetGroupValue(y, "value").Replace("\\\"", "\"")).SingleOrDefault();
+        return QuotesStringWithEscapedQuotesRegex()
+            .Matches(str)
+            .Select(match => GetGroupValue(match, "value").Replace("\\\"", "\""))
+            .SingleOrDefault();
+    }    
+    
+    public IEnumerable<string> SplitCommandArgumentsString(string str)
+    {
+        return QuotesStringsWithEscapedQuotesRegex()
+            .Matches(str)
+            .Select(match => match.ToString().Replace("\\\"", "\"")); //todo
     }
 
-    public static (string ArgumentsString, IEnumerable<(string Flag, string Value)> Flags)
-        SplitExecutionStringInfo(string str)
+    public ISplitExecutionStringInfo SplitExecutionStringInfo(string str)
     {
-        var (argumentsString, flagsMatchList) = GetCommandArgumentsString(str);
-
-        return (argumentsString, GetCommandFlags(flagsMatchList));
+        var (arguments, flagsMatches) = GetCommandArgumentsAndFlagsMatches(str);
+        var flags = GetCommandFlags(flagsMatches);
+        
+        return new SplitExecutionStringInfo(arguments, flags);
     }
 
-    private static (string ArgumentsString, List<Match> FlagsMatchList) GetCommandArgumentsString(string str)
+    private static (string Arguments, List<Match> FlagsMatches) GetCommandArgumentsAndFlagsMatches(string str)
     {
         var notFlagValueStringsInfo = new List<(string MatchString, int Index)>();
 
@@ -36,20 +47,20 @@ public static partial class RegexHelper
 
         var flagsMatchList = new List<Match>();
 
-        var defectiveArgumentsString = Regex.Replace(clearedString, FlagsRegex().ToString(), match =>
+        var defectiveArguments = Regex.Replace(clearedString, FlagsRegex().ToString(), match =>
         {
             flagsMatchList.Add(match);
             return new string(' ', match.ToString().Length);
         });
 
-        var argumentsString = defectiveArgumentsString;
+        var arguments = defectiveArguments;
 
         notFlagValueStringsInfo.ForEach(bundle =>
-            argumentsString = argumentsString.ReplaceWithOverWriting(bundle.MatchString, bundle.Index));
+            arguments = arguments.ReplaceWithOverWriting(bundle.MatchString, bundle.Index));
 
-        argumentsString = Regex.Replace(argumentsString, WhiteSpacesRegex().ToString(), " ").Trim();
+        arguments = Regex.Replace(arguments, WhiteSpacesRegex().ToString(), " ").Trim();
 
-        return (argumentsString, flagsMatchList);
+        return (arguments, flagsMatchList);
     }
 
     private static IEnumerable<(string Flag, string Value)> GetCommandFlags(IEnumerable<Match> matchCollection)
@@ -61,7 +72,7 @@ public static partial class RegexHelper
             if ((key = GetGroupValue(match, "shortKey")).Length is not 0) value = GetGroupValue(match, "shortValue");
             else if ((key = GetGroupValue(match, "longKey")).Length is not 0) value = GetGroupValue(match, "longValue");
             else if ((key = GetGroupValue(match, "longKeyNoValue")).Length is not 0) value = string.Empty;
-            else throw new InternalException("Unexpected code block entering.");
+            else throw new publicException("Unexpected code block entering.");
 
             return (key, value);
         });
@@ -77,6 +88,9 @@ public static partial class RegexHelper
 
     [GeneratedRegex("\"(?<value>([^\"\\\\]|\\\\.)*)\"")]
     private static partial Regex QuotesStringWithEscapedQuotesRegex();
+    
+    [GeneratedRegex("(\"([^\"\\\\\\\\]|\\\\\\\\.)*\")|(([^\\s]+))")]
+    private static partial Regex QuotesStringsWithEscapedQuotesRegex();
 
     [GeneratedRegex(
         "(?<!(?:(?:-[a-zA-Z]+)|(?:--(?:[a-zA-Z][a-zA-Z\\-]*)))\\s+)(?<=(?:^|\\s))\"(?<value>[^\"\"\\\\]|\\\\.)*\"(?=(?:$|\\s))")]

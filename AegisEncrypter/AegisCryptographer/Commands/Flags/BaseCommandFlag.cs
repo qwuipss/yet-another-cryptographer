@@ -1,5 +1,5 @@
 using AegisCryptographer.Exceptions;
-using AegisCryptographer.Helpers;
+using RegexService = AegisCryptographer.Services.RegexService;
 
 namespace AegisCryptographer.Commands.Flags;
 
@@ -13,7 +13,7 @@ public abstract class BaseCommandFlag : ICommandFlag
         Value = value;
     }
 
-    protected virtual Func<string, bool> ValueValidationCallback => value => RegexHelper.GetCommandFlagDefaultValueValidationRegex().IsMatch(value);
+    protected virtual Func<string, bool> ValueValidationCallback => value => RegexService.GetCommandFlagDefaultValueValidationRegex().IsMatch(value);
 
     public string Key { get; }
 

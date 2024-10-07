@@ -1,9 +1,12 @@
+using System.Security;
 using System.Text;
 
 namespace AegisCryptographer.IO;
 
 public class Reader(IWriter writer) : IReader
 {
+    private IWriter Writer { get; } = writer;
+
     static Reader()
     {
         Console.InputEncoding = Settings.Encoding;
@@ -11,7 +14,7 @@ public class Reader(IWriter writer) : IReader
 
     public string? ReadLine()
     {
-        writer.Write("aegis> ");
+        Writer.Write("aegis> ");
 
         return Console.ReadLine()?.Trim();
     }
@@ -29,29 +32,26 @@ public class Reader(IWriter writer) : IReader
                 if (secretBuilder.Length > 0)
                 {
                     secretBuilder.Remove(secretBuilder.Length - 1, 1);
-
-                    writer.Write(" ");
-                    Console.CursorLeft -= 1;
+                    Console.Write("\b \b\b \b");
                 }
                 else
                 {
-                    Console.CursorLeft += 1;
+                    Console.Write("\b \b");
                 }
 
                 continue;
             }
 
-            if (!char.IsLetterOrDigit(keyInfo.KeyChar)) continue;
+            if (keyInfo.KeyChar is '\0') continue;
 
-#if !DEBUG // disable password masking in debug mode 
-            Console.CursorLeft -= 1;
-            writer.Write("*");
-#endif
             secretBuilder.Append(keyInfo.KeyChar);
+#if !DEBUG // disable password masking in debug mode 
+            Writer.Write("\b*");
+#endif
         }
 
-        writer.WriteLine();
+        Writer.WriteLine();
 
-        return secretBuilder.ToString().Trim();
+        return secretBuilder.ToString();
     }
 }

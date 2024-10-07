@@ -2,6 +2,6 @@ namespace AegisCryptographer.Cryptography.Algorithms;
 
 public interface ICryptoAlgorithm
 {
-    public byte[] Encrypt(byte[] data);
-    public byte[] Decrypt(byte[] data);
+    byte[] Encrypt(byte[] data);
+    byte[] Decrypt(byte[] data);
 }
