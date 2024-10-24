@@ -1,5 +1,12 @@
-﻿using AegisCryptographer.IO;
+﻿using AegisCryptographer.Commands.Execution;
+using AegisCryptographer.Commands.Flags;
+using AegisCryptographer.Commands.Resolvers;
+using AegisCryptographer.Configuration;
+using AegisCryptographer.Cryptography.Algorithms;
+using AegisCryptographer.IO;
 using AegisCryptographer.Runners;
+using AegisCryptographer.Services;
+using SimpleInjector;
 
 namespace AegisCryptographer;
 
@@ -8,12 +15,22 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        var writer = new Writer();
-        var reader = new Reader(writer);
+        var container = new Container();
 
-        if (args.Length is 0) new LoopRunner(reader, writer).Run();
+        container.Register<IConfigurationProvider, ConfigurationProvider>(Lifestyle.Singleton);
+        container.Register<IWriter, Writer>(Lifestyle.Singleton);
+        container.Register<IReader, Reader>(Lifestyle.Singleton);
+        container.Register<ICommandResolver, CommandResolver>(Lifestyle.Singleton);
+        container.Register<ICommandFlagsResolver, CommandFlagsResolver>(Lifestyle.Singleton);
+        container.Register<ICryptoAlgorithmResolver, CryptoAlgorithmResolver>(Lifestyle.Singleton);
+        container.Register<ICommandExecutor, CommandExecutor>(Lifestyle.Singleton);
+        container.Register<IRegexService, RegexService>(Lifestyle.Singleton);
+        container.Register<ICryptoService, CryptoService>(Lifestyle.Singleton);
+        container.Register<LoopRunner>(Lifestyle.Singleton);
 
-        // todo cli runner
-        throw new NotImplementedException();
+        if (args.Length is 0)
+            container.GetInstance<LoopRunner>().Run();
+        else
+            throw new NotImplementedException(); // todo cli runner
     }
 }

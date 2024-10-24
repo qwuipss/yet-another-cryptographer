@@ -1,8 +1,10 @@
-using AegisCryptographer.Collections;
+using System.Text;
 using AegisCryptographer.Commands.Decrypt;
 using AegisCryptographer.Commands.Encrypt;
 using AegisCryptographer.Commands.Flags;
 using AegisCryptographer.Commands.Resolvers;
+using AegisCryptographer.Configuration;
+using AegisCryptographer.Cryptography.Algorithms;
 using AegisCryptographer.Exceptions;
 using AegisCryptographer.Extensions;
 using AegisCryptographer.IO;
@@ -15,27 +17,36 @@ using static AegisCryptographer.Commands.CommandsArgumentsTokens;
 namespace AegisCryptographer.Tests.Commands.Resolvers;
 
 [TestFixture]
+// ReSharper disable once InconsistentNaming
 public class CommandResolver_Tests
 {
-    private ICommandFlagsResolver _flagsResolver;
-    private ISplitExecutionStringInfo _splitExecutionStringInfo;
-    private IRegexService _regexService;
     private IReader _reader;
     private IWriter _writer;
+    private ICryptoAlgorithmResolver _cryptoAlgorithmResolver;
+    private ICommandFlagsResolver _commandFlagsResolver;
+    private IRegexService _regexService;
+    private IConfigurationProvider _configurationProvider;
+    private ISplitExecutionStringInfo _splitExecutionStringInfo;
 
     [SetUp]
     public void SetUp()
     {
-        _flagsResolver = Substitute.For<ICommandFlagsResolver>();
         _reader = Substitute.For<IReader>();
+        _reader.ReadSecret().Returns("secret");
+
         _writer = Substitute.For<IWriter>();
 
-        _reader.ReadSecret().Returns("secret");
+        _cryptoAlgorithmResolver = Substitute.For<ICryptoAlgorithmResolver>();
         
-        _splitExecutionStringInfo = Substitute.For<ISplitExecutionStringInfo>();
-        
+        _commandFlagsResolver = Substitute.For<ICommandFlagsResolver>();
+
         _regexService = Substitute.For<IRegexService>();
         _regexService.SplitExecutionStringInfo(default!).ReturnsForAnyArgs(_splitExecutionStringInfo);
+
+        _configurationProvider = Substitute.For<IConfigurationProvider>();
+        _configurationProvider.Encoding.ReturnsForAnyArgs(Encoding.UTF8);
+        
+        _splitExecutionStringInfo = Substitute.For<ISplitExecutionStringInfo>();
     }
 
     [TestCase("")]
@@ -43,44 +54,58 @@ public class CommandResolver_Tests
     [TestCase(null)]
     public void Resolve_should_throw_when_input_is_null_or_empty_or_whitespace(string? input)
     {
-        Assert.Throws<InputEmptyException>(() => CreateCommandResolver(input).Resolve());
+        Assert.Throws<InputEmptyException>(() => CreateCommandResolver().Resolve(input));
+    }
+
+    [TestCase("fake command \"fake arg\"")]
+    public void Resolve_should_throw_when_unable_resolve_command(string input)
+    {
+        _splitExecutionStringInfo.Arguments.ReturnsForAnyArgs(input);
+        _regexService.SplitExecutionStringInfo(input).ReturnsForAnyArgs(_splitExecutionStringInfo);
+        _regexService.SplitCommandArgumentsString(input).Returns(input.Split());
+
+        Assert.Throws<CommandResolveException>(() => CreateCommandResolver().Resolve(input));
     }
 
     [Test]
     public void Resolve_should_resolve_encrypt_string_command()
     {
-        var commands = GetInterpolatedCommandsCartesianProduct("{0} {1} " + "hello world".WrapInQuotes(),
-            [[EncryptLongToken, EncryptShortToken], [StringLongToken, StringShortToken]]);
-
-        foreach (var command in commands)
-        {
-            // _splitExecutionStringInfo.Arguments.Returns();
-            
-            var resolvedCommand = CreateCommandResolver(command).Resolve();
-            
-            resolvedCommand.Should().BeOfType<EncryptStringCommand>();
-        }
+        TestCore_Resolve_should_resolve_command<EncryptStringCommand>([
+            [EncryptLongToken, EncryptShortToken], [StringLongToken, StringShortToken], ["hello world".WrapInQuotes()]
+        ]);
     }
 
     [Test]
     public void Resolve_should_resolve_decrypt_string_command()
     {
-        var commands = GetInterpolatedCommandsCartesianProduct("{0} {1} " + "hello world".WrapInQuotes(),
-            [[DecryptLongToken, DecryptShortToken], [StringLongToken, StringShortToken]]);
+        TestCore_Resolve_should_resolve_command<DecryptStringCommand>([
+            [DecryptLongToken, DecryptShortToken], [StringLongToken, StringShortToken], ["hello world".WrapInQuotes()]
+        ]);
+    }
 
-        foreach (var resolvedCommand in commands.Select(command => CreateCommandResolver(command).Resolve()))
+    private void TestCore_Resolve_should_resolve_command<TCommand>(List<List<string>> tokens)
+    {
+        var splitCommands = GetCommandsCartesianProduct(tokens);
+
+        foreach (var splitCommand in splitCommands)
         {
-            resolvedCommand.Should().BeOfType<DecryptStringCommand>();
+            var command = string.Join(' ', splitCommand);
+            _splitExecutionStringInfo.Arguments.ReturnsForAnyArgs(command);
+            _regexService.SplitExecutionStringInfo(command).ReturnsForAnyArgs(_splitExecutionStringInfo);
+            _regexService.SplitCommandArgumentsString(command).Returns(splitCommand);
+            _regexService.GetQuotesStringWithEscapedQuotes(default!).ReturnsForAnyArgs(callInfo => callInfo.Arg<string>());
+
+            var resolvedCommand = CreateCommandResolver().Resolve(command);
+
+            resolvedCommand.Should().BeOfType<TCommand>();
         }
     }
 
-    private static List<string> GetInterpolatedCommandsCartesianProduct(string commandToInterpolate, List<List<string>> tokens)
+    private static List<List<string>> GetCommandsCartesianProduct(List<List<string>> tokens)
     {
         var commands = new List<List<string>>();
         GetCommandsCartesianProduct(commands, tokens, new string[tokens.Count]);
-        var interpolatedCommands = commands.Select(command => string.Format(commandToInterpolate, [..command])).ToList();
-
-        return interpolatedCommands;
+        return commands;
     }
 
     private static void GetCommandsCartesianProduct(List<List<string>> commands, List<List<string>> tokens, string[] results, int index = 0)
@@ -98,8 +123,8 @@ public class CommandResolver_Tests
         }
     }
 
-    private InputCommandResolver CreateCommandResolver(string? input)
+    private CommandResolver CreateCommandResolver()
     {
-        return new InputCommandResolver(input, _regexService, _flagsResolver, _reader, _writer);
+        return new CommandResolver(_reader, _writer, _cryptoAlgorithmResolver, _commandFlagsResolver, _regexService, _configurationProvider);
     }
 }

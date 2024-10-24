@@ -12,4 +12,8 @@
         <Folder Include="Runners\"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="SimpleInjector" Version="5.5.0" />
+    </ItemGroup>
+
 </Project>

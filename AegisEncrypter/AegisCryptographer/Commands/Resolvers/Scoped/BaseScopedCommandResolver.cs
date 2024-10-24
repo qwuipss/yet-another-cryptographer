@@ -1,4 +1,5 @@
 using AegisCryptographer.Collections;
+using AegisCryptographer.Configuration;
 using AegisCryptographer.Cryptography;
 using AegisCryptographer.Cryptography.Algorithms;
 using AegisCryptographer.Exceptions;
@@ -10,37 +11,40 @@ using static AegisCryptographer.Commands.ExpectedCommandsTokens;
 namespace AegisCryptographer.Commands.Resolvers.Scoped;
 
 public abstract class BaseScopedCommandResolver(
-    IRegexService regexService,
-    ICommandExecutionStringInfo commandExecutionStringInfo,
     IReader reader,
-    IWriter writer)
-    : ICommandResolver
+    IWriter writer,
+    ICryptoAlgorithmResolver cryptoAlgorithmResolver,
+    IRegexService regexService,
+    IConfigurationProvider configurationProvider)
+    : IScopedCommandResolver
 {
-    private IRegexService RegexService { get; } = regexService;
-    private IReader Reader { get; } = reader;
-    private IWriter Writer { get; } = writer;
-    protected ICommandExecutionStringInfo CommandExecutionStringInfo { get; } = commandExecutionStringInfo;
+    private readonly IReader _reader = reader;
+    private readonly IWriter _writer = writer;
+    private readonly ICryptoAlgorithmResolver _cryptoAlgorithmResolver = cryptoAlgorithmResolver;
+    private readonly IRegexService _regexService = regexService;
+    private readonly IConfigurationProvider _configurationProvider = configurationProvider;
 
-    public abstract ICommand Resolve();
+    public abstract ICommand Resolve(ICommandExecutionStringInfo commandExecutionStringInfo);
 
-    protected ICommand GetTransformStringCommand(string commandName, Func<string, ICryptoStream, ICommand> cryptoCommandCallback)
+    protected ICommand GetTransformStringCommand(string commandName, ICommandExecutionStringInfo commandExecutionStringInfo,
+        Func<string, ICryptoStream, ICommand> cryptoCommandCallback)
     {
-        var transformString = RegexService.GetQuotesStringWithEscapedQuotes(
-            CommandExecutionStringInfo.CommandArgumentsCollection.Next(StringToTransform));
+        var transformString = _regexService.GetQuotesStringWithEscapedQuotes(
+            commandExecutionStringInfo.CommandArgumentsCollection.Next(StringToTransform));
 
         if (string.IsNullOrEmpty(transformString)) throw new CommandInvalidArgumentException(StringToTransform, commandName);
 
-        CommandExecutionStringInfo.CommandArgumentsCollection.ThrowIfNotSealed();
+        commandExecutionStringInfo.CommandArgumentsCollection.ThrowIfNotSealed();
 
         var secret = RequireSecretWithEnsure();
-        var algorithm = ResolveCryptoAlgorithm(secret);
+        var algorithm = _cryptoAlgorithmResolver.Resolve(secret, commandExecutionStringInfo.CommandFlagsCollection);
 
-        return cryptoCommandCallback(transformString, new CryptoStream(algorithm));
+        return cryptoCommandCallback(transformString, new CryptoStream(algorithm, _configurationProvider));
     }
 
     private string RequireSecret()
     {
-        return RequireSecret(Writer.WriteEnterSecret);
+        return RequireSecret(_writer.WriteEnterSecret);
     }
 
     private string RequireSecretWithEnsure()
@@ -55,12 +59,6 @@ public abstract class BaseScopedCommandResolver(
         return secret;
     }
 
-    private ICryptoAlgorithm ResolveCryptoAlgorithm(string secret)
-    {
-        //todo
-        return new AesGcmAlgorithm(secret, new CryptoService());
-    }
-
     private string RequireSecret(Action writeCallback)
     {
         string? input;
@@ -68,7 +66,7 @@ public abstract class BaseScopedCommandResolver(
         do
         {
             writeCallback();
-            input = Reader.ReadSecret();
+            input = _reader.ReadSecret();
         } while (input.IsNullOrEmptyOrWhitespace());
 
         return input;

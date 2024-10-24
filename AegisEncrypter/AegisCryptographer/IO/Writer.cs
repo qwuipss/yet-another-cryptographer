@@ -1,10 +1,12 @@
+using AegisCryptographer.Configuration;
+
 namespace AegisCryptographer.IO;
 
 public class Writer : IWriter
 {
-    static Writer()
+    public Writer(IConfigurationProvider configurationProvider)
     {
-        Console.OutputEncoding = Settings.Encoding;
+        Console.InputEncoding = configurationProvider.Encoding;
     }
 
     public void WriteLine()

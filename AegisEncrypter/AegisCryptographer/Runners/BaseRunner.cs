@@ -2,27 +2,34 @@ using AegisCryptographer.Commands;
 using AegisCryptographer.Commands.Execution;
 using AegisCryptographer.Commands.Flags;
 using AegisCryptographer.Commands.Resolvers;
+using AegisCryptographer.Configuration;
 using AegisCryptographer.Exceptions;
 using AegisCryptographer.IO;
 using AegisCryptographer.Services;
 
 namespace AegisCryptographer.Runners;
 
-public abstract class BaseRunner(IReader reader, IWriter writer) : IRunner
+public abstract class BaseRunner(
+    IReader reader,
+    IWriter writer,
+    ICommandExecutor commandExecutor,
+    ICommandResolver commandResolver) : IRunner
 {
+    private readonly IWriter _writer  = writer;
+    private readonly ICommandExecutor _commandExecutor = commandExecutor;
+    private readonly ICommandResolver _commandResolver  = commandResolver;
+    
     protected IReader Reader { get; } = reader;
-    private IWriter Writer { get; } = writer;
-
+    
     public abstract void Run();
 
     protected void RunInput(string? input)
     {
         ICommand command;
-        var commandResolver = new InputCommandResolver(input, new RegexService(), new CommandFlagsResolver(), Reader, Writer);
 
         try
         {
-            command = commandResolver.Resolve();
+            command = _commandResolver.Resolve(input);
         }
         catch (InputEmptyException)
         {
@@ -30,26 +37,23 @@ public abstract class BaseRunner(IReader reader, IWriter writer) : IRunner
         }
         catch (IntentionalException exc)
         {
-            Writer.WriteException(exc);
+            _writer.WriteException(exc);
             return;
         }
 
         while (true)
             try
             {
-                var executor = new CommandExecutor(Writer);
-
-                executor.Execute(command);
-
+                _commandExecutor.Execute(command);
                 break;
             }
             catch (SecretsMismatchException exc)
             {
-                Writer.WriteException(exc);
+                _writer.WriteException(exc);
             }
             catch (IntentionalException exc)
             {
-                Writer.WriteException(exc);
+                _writer.WriteException(exc);
                 break;
             }
     }

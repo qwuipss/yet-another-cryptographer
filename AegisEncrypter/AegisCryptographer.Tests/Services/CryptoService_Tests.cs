@@ -1,9 +1,10 @@
 using AegisCryptographer.Services;
 using FluentAssertions;
 
-namespace AegisCryptographer.Tests.Helpers;
+namespace AegisCryptographer.Tests.Services;
 
 [TestFixture]
+// ReSharper disable once InconsistentNaming
 public class CryptoService_Tests
 {
     private CryptoService _cryptoService;

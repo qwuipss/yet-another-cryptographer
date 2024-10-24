@@ -5,6 +5,7 @@ using FluentAssertions;
 namespace AegisCryptographer.Tests.Collections;
 
 [TestFixture]
+// ReSharper disable once InconsistentNaming
 public class CommandArgumentsCollection_Tests
 {
     [TestCaseSource(typeof(TestCases), nameof(TestCases.Initialization))]

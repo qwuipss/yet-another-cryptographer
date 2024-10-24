@@ -1,3 +1,3 @@
 namespace AegisCryptographer.Exceptions;
 
-public class publicException(string message) : Exception(message);
+public class InternalException(string message) : Exception(message);

@@ -1,21 +1,22 @@
 using System.Security.Cryptography;
+using AegisCryptographer.Configuration;
+using AegisCryptographer.Exceptions;
 using AegisCryptographer.Extensions;
 using AegisCryptographer.Services;
 
 namespace AegisCryptographer.Cryptography.Algorithms;
 
-public class AesGcmAlgorithm(string secret, ICryptoService cryptoService) : ICryptoAlgorithm
+public class AesGcmAlgorithm(string secret, ICryptoService cryptoService, IConfigurationProvider configurationProvider) : ICryptoAlgorithm
 {
-    private static readonly int TagBytesSize = AesGcm.TagByteSizes.MaxSize;
+    private static readonly int TagBytesSize = AesGcm.TagByteSizes.MaxSize; //todo reduce for files 
     private static readonly int NonceSize = AesGcm.NonceByteSizes.MaxSize;
 
-    private ICryptoService CryptoService { get; } = cryptoService;
-    
-    private readonly AesGcm _aes = new(secret.ToPaddedSecretKey(), TagBytesSize);
+    private readonly AesGcm _aes = new(secret.ToPaddedSecretKey(configurationProvider.Encoding), TagBytesSize);
+    private readonly ICryptoService _cryptoService = cryptoService;
 
     public byte[] Encrypt(byte[] data)
     {
-        var nonce = CryptoService.GetRandomNonce(NonceSize);
+        var nonce = _cryptoService.GetRandomNonce(NonceSize);
         var cipher = new byte[data.Length];
         var tag = new byte[TagBytesSize];
 
@@ -37,7 +38,14 @@ public class AesGcmAlgorithm(string secret, ICryptoService cryptoService) : ICry
         var tag = new ReadOnlySpan<byte>(data, NonceSize + cipher.Length, TagBytesSize);
         var output = new byte[cipher.Length];
 
-        _aes.Decrypt(nonce, cipher, tag, output);
+        try
+        {
+            _aes.Decrypt(nonce, cipher, tag, output);
+        }
+        catch (AuthenticationTagMismatchException)
+        {
+            throw new CryptoAlgorithmException("Decryption failed. Authentication tag mismatch.");
+        }
 
         return output;
     }

@@ -1,8 +1,15 @@
+using AegisCryptographer.Commands.Execution;
+using AegisCryptographer.Commands.Resolvers;
 using AegisCryptographer.IO;
+using static AegisCryptographer.Commands.CommandsTokens;
 
 namespace AegisCryptographer.Runners;
 
-public class LoopRunner(IReader reader, IWriter writer) : BaseRunner(reader, writer)
+public class LoopRunner(
+    IReader reader,
+    IWriter writer,
+    ICommandExecutor commandExecutor,
+    ICommandResolver commandResolver) : BaseRunner(reader, writer, commandExecutor, commandResolver)
 {
     public override void Run()
     {
@@ -10,7 +17,7 @@ public class LoopRunner(IReader reader, IWriter writer) : BaseRunner(reader, wri
         {
             var input = Reader.ReadLine();
 
-            if (input is "q" or "quit" or "ex" or "exit") break;
+            if (input is ExitShortToken or ExitLongToken) break; //todo execute as command
 
             RunInput(input);
         }

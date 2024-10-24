@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Text;
 using AegisCryptographer.Exceptions;
 
 namespace AegisCryptographer.Extensions;
@@ -30,15 +31,15 @@ public static class StringExtensions
         return $"\"{str}\"";
     }
 
-    public static byte[] ToPaddedSecretKey(this string str)
+    public static byte[] ToPaddedSecretKey(this string str, Encoding encoding)
     {
-        var size = Settings.Encoding.GetByteCount(str);
+        var size = encoding.GetByteCount(str);
         var paddedSize = DefaultCipherKeyPaddings.FirstOrDefault(x => x >= size);
 
         if (paddedSize is 0) throw new SecretTooLongException(size, DefaultCipherKeyPaddings.Max());
 
         var array = new byte[paddedSize];
-        var bytes = Settings.Encoding.GetBytes(str);
+        var bytes = encoding.GetBytes(str);
 
         Buffer.BlockCopy(bytes, 0, array, 0, bytes.Length);
 

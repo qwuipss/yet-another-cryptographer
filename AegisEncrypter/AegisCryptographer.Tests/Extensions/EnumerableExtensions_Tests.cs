@@ -4,6 +4,7 @@ using FluentAssertions;
 namespace AegisCryptographer.Tests.Extensions;
 
 [TestFixture]
+// ReSharper disable once InconsistentNaming
 public class EnumerableExtensions_Tests
 {
     [TestCase(new[] { -1, -10, -17 })]
@@ -16,8 +17,8 @@ public class EnumerableExtensions_Tests
 
         enumerable.ForEach(x =>
         {
+            x.Should().Be(enumerable[iterations++]);
             sum += x;
-            iterations++;
         });
 
         sum.Should().Be(enumerable.Sum());

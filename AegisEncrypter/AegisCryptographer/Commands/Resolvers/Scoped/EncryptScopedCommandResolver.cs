@@ -1,5 +1,7 @@
 using AegisCryptographer.Collections;
 using AegisCryptographer.Commands.Encrypt;
+using AegisCryptographer.Configuration;
+using AegisCryptographer.Cryptography.Algorithms;
 using AegisCryptographer.Exceptions;
 using AegisCryptographer.IO;
 using AegisCryptographer.Services;
@@ -10,18 +12,20 @@ using static AegisCryptographer.Commands.CommandsTokens;
 namespace AegisCryptographer.Commands.Resolvers.Scoped;
 
 public class EncryptScopedCommandResolver(
-    ICommandExecutionStringInfo commandExecutionStringInfo,
     IReader reader,
-    IWriter writer) : BaseScopedCommandResolver(new RegexService(), commandExecutionStringInfo, reader, writer)
+    IWriter writer,
+    ICryptoAlgorithmResolver cryptoAlgorithmResolver,
+    IRegexService regexService,
+    IConfigurationProvider configurationProvider) : BaseScopedCommandResolver(reader, writer, cryptoAlgorithmResolver, regexService, configurationProvider)
 {
-    public override ICommand Resolve()
+    public override ICommand Resolve(ICommandExecutionStringInfo commandExecutionStringInfo)
     {
-        var transformTargetToken = CommandExecutionStringInfo.CommandArgumentsCollection.Next(TransformTarget);
+        var transformTargetToken = commandExecutionStringInfo.CommandArgumentsCollection.Next(TransformTarget);
 
         return transformTargetToken switch
         {
             StringLongToken or StringShortToken =>
-                GetTransformStringCommand(EncryptLongToken,
+                GetTransformStringCommand(EncryptLongToken, commandExecutionStringInfo,
                     (str, cryptoStream) => new EncryptStringCommand(str, cryptoStream)),
             _ => throw new CommandInvalidArgumentException(transformTargetToken, EncryptLongToken)
         };

@@ -1,3 +1,4 @@
+using System.Text;
 using AegisCryptographer.Exceptions;
 using AegisCryptographer.Extensions;
 using FluentAssertions;
@@ -5,6 +6,7 @@ using FluentAssertions;
 namespace AegisCryptographer.Tests.Extensions;
 
 [TestFixture]
+// ReSharper disable once InconsistentNaming
 public class StringExtensions_Tests
 {
     [TestCase(null, true)]
@@ -19,7 +21,7 @@ public class StringExtensions_Tests
     [TestCase("   ъ   ", false)]
     public void IsNullOrEmptyOrWhiteSpace_should_correctly_define_string(string? str, bool expectedResult)
     {
-        StringExtensions.IsNullOrEmptyOrWhitespace(str).Should().Be(expectedResult);
+        str.IsNullOrEmptyOrWhitespace().Should().Be(expectedResult);
     }
 
     [TestCase("hello world", "мир  ", 6, "hello мир  ")]
@@ -60,7 +62,7 @@ public class StringExtensions_Tests
         })]
     public void ToPaddedSecretKey_should_pad_key_by_default(string key, byte[] expectedKey)
     {
-        var paddedSecretKey = key.ToPaddedSecretKey();
+        var paddedSecretKey = key.ToPaddedSecretKey(Encoding.UTF8);
 
         paddedSecretKey.Should().BeEquivalentTo(expectedKey);
     }
@@ -68,6 +70,6 @@ public class StringExtensions_Tests
     [Test]
     public void ToPaddedSecretKey_should_throw_when_secret_length_exceed_default_max_length()
     {
-        Assert.Throws<SecretTooLongException>(() => new string('x', 33).ToPaddedSecretKey());
+        Assert.Throws<SecretTooLongException>(() => new string('x', 33).ToPaddedSecretKey(Encoding.UTF8));
     }
 }

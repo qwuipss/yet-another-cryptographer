@@ -2,5 +2,5 @@ namespace AegisCryptographer.Commands.Resolvers;
 
 public interface ICommandResolver
 {
-    ICommand Resolve();
+    ICommand Resolve(string? input);
 }

@@ -21,7 +21,7 @@ public partial class RegexService : IRegexService
     
     public IEnumerable<string> SplitCommandArgumentsString(string str)
     {
-        return QuotesStringsWithEscapedQuotesRegex()
+        return CommandArgumentsString()
             .Matches(str)
             .Select(match => match.ToString().Replace("\\\"", "\"")); //todo
     }
@@ -72,7 +72,7 @@ public partial class RegexService : IRegexService
             if ((key = GetGroupValue(match, "shortKey")).Length is not 0) value = GetGroupValue(match, "shortValue");
             else if ((key = GetGroupValue(match, "longKey")).Length is not 0) value = GetGroupValue(match, "longValue");
             else if ((key = GetGroupValue(match, "longKeyNoValue")).Length is not 0) value = string.Empty;
-            else throw new publicException("Unexpected code block entering.");
+            else throw new InternalException("Unexpected code block entering.");
 
             return (key, value);
         });
@@ -89,8 +89,8 @@ public partial class RegexService : IRegexService
     [GeneratedRegex("\"(?<value>([^\"\\\\]|\\\\.)*)\"")]
     private static partial Regex QuotesStringWithEscapedQuotesRegex();
     
-    [GeneratedRegex("(\"([^\"\\\\\\\\]|\\\\\\\\.)*\")|(([^\\s]+))")]
-    private static partial Regex QuotesStringsWithEscapedQuotesRegex();
+    [GeneratedRegex("(\"([^\"\\\\]|\\\\.)*\")|([^ ]+)")]
+    private static partial Regex CommandArgumentsString();
 
     [GeneratedRegex(
         "(?<!(?:(?:-[a-zA-Z]+)|(?:--(?:[a-zA-Z][a-zA-Z\\-]*)))\\s+)(?<=(?:^|\\s))\"(?<value>[^\"\"\\\\]|\\\\.)*\"(?=(?:$|\\s))")]

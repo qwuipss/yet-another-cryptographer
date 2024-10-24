@@ -1,13 +1,12 @@
-using AegisCryptographer.Collections;
-using AegisCryptographer.Commands.Resolvers;
 using AegisCryptographer.Extensions;
 using AegisCryptographer.Services;
 using AegisCryptographer.Tests.NotTests.Extensions;
 using FluentAssertions;
 
-namespace AegisCryptographer.Tests.Helpers;
+namespace AegisCryptographer.Tests.Services;
 
 [TestFixture]
+// ReSharper disable once InconsistentNaming
 public class RegexService_Tests
 {
     private RegexService _regexService;
@@ -16,14 +15,6 @@ public class RegexService_Tests
     public void SetUp()
     {
         _regexService = new RegexService();
-    }
-
-    [TestCaseSource(typeof(TestCases), nameof(TestCases.GetQuotesStringWithEscapedQuotes))]
-    public void GetQuotesStringWithEscapedQuotes_should_extract_string_in_quotes_with_escaped_quotes((string Data, string? ExpectedString) bundle)
-    {
-        var quotesStrings = _regexService.GetQuotesStringWithEscapedQuotes(bundle.Data);
-
-        quotesStrings.Should().BeEquivalentTo(bundle.ExpectedString);
     }
 
     [TestCaseSource(typeof(TestCases), nameof(TestCases.SplitExecutionStringInfo))]
@@ -35,25 +26,29 @@ public class RegexService_Tests
         splitExecutionStringCollection.Should().BeEquivalentTo(bundle.SplitExecutionStringCollection);
     }
 
+    [TestCaseSource(typeof(TestCases), nameof(TestCases.SplitCommandArgumentsString))]
+    public void SplitCommandArgumentsString_should_split_string_on_arguments_string_and_flags((string Data, string[] ExpectedArguments) bundle)
+    {
+        var splitCommandArgumentsString = _regexService.SplitCommandArgumentsString(bundle.Data);
+
+        splitCommandArgumentsString.Should().BeEquivalentTo(bundle.ExpectedArguments);
+    }
+
     private static class TestCases
     {
-        public static IEnumerable<(string Data, string? ExpectedString)> GetQuotesStringWithEscapedQuotes
+        public static IEnumerable<(string Data, string[] ExpectedArguments)> SplitCommandArgumentsString
         {
             get
             {
-                yield return (string.Empty, null);
-                yield return (string.Empty.WrapInQuotes(), string.Empty);
-                yield return ("simple".WrapInQuotes(), "simple");
-                yield return ("  with   spaces   ".WrapInQuotes(), "  with   spaces   ");
-                yield return ("any symb тест 123 \\:;!@%()[]{}=".WrapInQuotes(), "any symb тест 123 \\:;!@%()[]{}=");
-                yield return ("special \t symbols\r".WrapInQuotes(), "special \t symbols\r");
-                yield return ("caSE  SenSEtIve".WrapInQuotes(), "caSE  SenSEtIve");
-                yield return ($"with escaped {"quotes".WrapInEscapedQuotes()}".WrapInQuotes(),
-                    $"with escaped {"quotes".WrapInQuotes()}");
-                yield return (
-                    $"with many escaped {string.Empty.WrapInEscapedQuotes()} {"quotes".WrapInEscapedQuotes()}"
-                        .WrapInQuotes(),
-                    $"with many escaped {string.Empty.WrapInQuotes()} {"quotes".WrapInQuotes()}");
+                yield return ($"enc str {"hello world".WrapInQuotes()}", ["enc", "str", "hello world".WrapInQuotes()]);
+                yield return ($"enc str {string.Empty.WrapInEscapedQuotes().WrapInQuotes()}",
+                    ["enc", "str", string.Empty.WrapInQuotes().WrapInQuotes()]);
+                yield return ($"enc str {"hello world".WrapInQuotes()} {"another".WrapInQuotes()}",
+                    ["enc", "str", "hello world".WrapInQuotes(), "another".WrapInQuotes()]);
+                yield return ($"{"quotes string before".WrapInQuotes()} enc str {"hello world".WrapInQuotes()}",
+                    ["quotes string before".WrapInQuotes(), "enc", "str", "hello world".WrapInQuotes()]);
+                yield return ($"{"quotes string before".WrapInQuotes()} enc str {$"hello {"world".WrapInEscapedQuotes()}".WrapInQuotes()}",
+                    ["quotes string before".WrapInQuotes(), "enc", "str", $"hello {"world".WrapInQuotes()}".WrapInQuotes()]);
             }
         }
 

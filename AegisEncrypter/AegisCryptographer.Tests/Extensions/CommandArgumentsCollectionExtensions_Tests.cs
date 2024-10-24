@@ -5,6 +5,7 @@ using AegisCryptographer.Extensions;
 namespace AegisCryptographer.Tests.Extensions;
 
 [TestFixture]
+// ReSharper disable once InconsistentNaming
 public class CommandArgumentsCollectionExtensions_Tests
 {
     [TestCase(new[] { "encrypt", "str" }, 1)]

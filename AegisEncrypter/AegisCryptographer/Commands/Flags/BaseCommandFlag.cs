@@ -21,7 +21,7 @@ public abstract class BaseCommandFlag : ICommandFlag
     {
         get => _value;
 
-        private init
+        private init //todo smth to avoid such logic
         {
             if (!ValueValidationCallback(value)) throw new CommandFlagValueValidationException(Key, value);
 
